@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人間の本質と比較する — 未来社会ガチャ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    :root {
+      --bg:           #f8f7f4;
+      --surface:      #ffffff;
+      --accent:       #5c50d6;
+      --accent-light: #ede9ff;
+      --text:         #1a1a1a;
+      --text-sub:     #6b6b6b;
+      --text-muted:   #a0a0a0;
+      --border:       #e8e6e0;
+      --c-social:     #2563eb;
+      --c-social-bg:  #eff6ff;
+      --c-value:      #7c3aed;
+      --c-value-bg:   #f5f3ff;
+      --c-life:       #059669;
+      --c-life-bg:    #ecfdf5;
+      --c-chaos:      #db2777;
+      --c-chaos-bg:   #fdf2f8;
+      --font-serif:   'Shippori Mincho', serif;
+      --font-sans:    'Noto Sans JP', sans-serif;
+    }
+
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1000px; margin: 0 auto; padding: 0 24px;
+      height: 56px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 0.9375rem; color: var(--text); text-decoration: none;
+    }
+    .nav-link {
+      font-size: 0.8125rem; color: var(--text-sub);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--accent); }
+
+    /* ── Page ── */
+    .page-body { max-width: 1000px; margin: 0 auto; padding: 40px 24px 0; }
+
+    /* ── Persona strip ── */
+    .persona-strip {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 22px;
+      margin-bottom: 40px;
+      display: flex; gap: 20px; align-items: flex-start;
+      flex-wrap: wrap;
+      animation: reveal 0.4s ease;
+    }
+    .strip-main { flex: 1; min-width: 180px; }
+    .strip-name {
+      font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .strip-age { font-size: 0.82rem; color: var(--text-sub); margin-bottom: 8px; }
+    .strip-values {
+      font-size: 0.82rem; color: var(--text-sub); line-height: 1.65;
+      border-left: 2px solid var(--accent-light); padding-left: 10px;
+    }
+    .strip-chips {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      align-items: flex-start; padding-top: 2px;
+    }
+    .strip-chip {
+      padding: 4px 11px; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 600; border: 1px solid;
+    }
+    .strip-chip.social { border-color: rgba(37,99,235,.3); color: var(--c-social); background: var(--c-social-bg); }
+    .strip-chip.value  { border-color: rgba(124,58,237,.3); color: var(--c-value);  background: var(--c-value-bg); }
+    .strip-chip.life   { border-color: rgba(5,150,105,.3);  color: var(--c-life);   background: var(--c-life-bg); }
+    .strip-chip.chaos  { border-color: rgba(219,39,119,.3); color: var(--c-chaos);  background: var(--c-chaos-bg); }
+
+    /* ── Lead ── */
+    .lead-section {
+      text-align: center; margin-bottom: 48px;
+      animation: reveal 0.5s ease;
+    }
+    .lead-eyebrow {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+    }
+    .lead-section h1 {
+      font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700;
+      letter-spacing: 0.04em; margin-bottom: 14px;
+    }
+    .lead-section p {
+      font-size: 0.88rem; color: var(--text-sub); line-height: 1.9;
+      max-width: 640px; margin: 0 auto;
+    }
+
+    /* ── Lens card ── */
+    .lens-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      margin-bottom: 28px;
+      animation: reveal 0.5s ease;
+    }
+    .lens-header {
+      padding: 16px 24px;
+      display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .lens-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; flex-shrink: 0;
+    }
+    .lens-meta { flex: 1; }
+    .lens-discipline {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; margin-bottom: 2px;
+    }
+    .lens-framework {
+      font-family: var(--font-serif); font-size: 1.05rem; font-weight: 700;
+      color: var(--text);
+    }
+    .lens-thinker {
+      font-size: 0.72rem; color: var(--text-muted);
+      text-align: right; line-height: 1.55; flex-shrink: 0;
+    }
+
+    /* lens colour themes */
+    .lens-card.anthro .lens-header { border-left: 4px solid #f59e0b; }
+    .lens-card.anthro .lens-icon   { background: #fffbeb; }
+    .lens-card.anthro .lens-discipline { color: #b45309; }
+
+    .lens-card.myth .lens-header   { border-left: 4px solid #7c3aed; }
+    .lens-card.myth .lens-icon     { background: #f5f3ff; }
+    .lens-card.myth .lens-discipline { color: #6d28d9; }
+
+    .lens-card.psych .lens-header  { border-left: 4px solid #06b6d4; }
+    .lens-card.psych .lens-icon    { background: #ecfeff; }
+    .lens-card.psych .lens-discipline { color: #0e7490; }
+
+    .lens-card.philo .lens-header  { border-left: 4px solid #10b981; }
+    .lens-card.philo .lens-icon    { background: #ecfdf5; }
+    .lens-card.philo .lens-discipline { color: #065f46; }
+
+    /* ── Lens body ── */
+    .lens-body {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      gap: 32px;
+      padding: 24px;
+      align-items: start;
+    }
+    .lens-explanation {
+      padding: 16px; background: var(--bg); border-radius: 10px;
+    }
+    .lens-exp-title {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;
+    }
+    .lens-exp-text {
+      font-size: 0.83rem; color: var(--text-sub); line-height: 1.85;
+    }
+    .lens-fields { display: flex; flex-direction: column; gap: 18px; }
+
+    /* ── Fields ── */
+    .field-group label {
+      display: block; font-size: 0.8125rem; font-weight: 500;
+      color: var(--text-sub); margin-bottom: 6px; line-height: 1.55;
+    }
+    textarea {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: var(--font-sans);
+      font-size: 0.875rem; line-height: 1.7;
+      padding: 10px 13px; resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    textarea::placeholder { color: var(--text-muted); }
+
+    /* ── Synthesis ── */
+    .synthesis-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      margin-bottom: 28px;
+    }
+    .synthesis-eyebrow {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+    }
+    .synthesis-section h2 {
+      font-family: var(--font-serif); font-size: 1.2rem; font-weight: 700;
+      margin-bottom: 6px; letter-spacing: 0.02em;
+    }
+    .synthesis-section .sub {
+      font-size: 0.84rem; color: var(--text-sub); margin-bottom: 24px;
+      line-height: 1.75;
+    }
+    .synthesis-cols {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    .synthesis-col-label {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 6px; padding: 4px 10px;
+      border-radius: 6px; display: inline-block;
+    }
+    .syn-change-label  { color: #db2777; background: #fdf2f8; }
+    .syn-const-label   { color: #5c50d6; background: var(--accent-light); }
+
+    /* ── Discussion (voice) ── */
+    .discussion-wrap {
+      margin-bottom: 28px; padding: 20px 24px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .discussion-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+    }
+    .discussion-label::before { content: '🎙'; font-size: 0.85rem; }
+    .voice-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .btn-record {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 20px; background: var(--surface);
+      border: 1.5px solid var(--border); border-radius: 20px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; font-family: var(--font-sans);
+      color: var(--text-sub); white-space: nowrap;
+    }
+    .btn-record:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-record.recording { background: #fef2f2; border-color: #ef4444; color: #ef4444; }
+    .btn-record .rec-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0;
+    }
+    .btn-record.recording .rec-dot { animation: blink 1s ease-in-out infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    .record-status { font-size: 0.75rem; color: var(--text-muted); }
+    .record-status.active { color: #ef4444; }
+    .voice-interim {
+      font-size: 0.82rem; color: var(--text-muted);
+      line-height: 1.65; min-height: 1.4em;
+      font-style: italic; margin-bottom: 6px;
+    }
+    .voice-unsupported { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; display: none; }
+
+    /* ── Page nav ── */
+    .page-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 20px; border-top: 1px solid var(--border);
+    }
+    .btn-nav {
+      padding: 10px 28px; border-radius: 8px;
+      border: 1.5px solid var(--border); background: transparent;
+      color: var(--text-sub); font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; font-family: var(--font-sans);
+      letter-spacing: 0.04em; text-decoration: none; display: inline-block;
+    }
+    .btn-nav:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .lens-body { grid-template-columns: 1fr; gap: 16px; }
+      .synthesis-cols { grid-template-columns: 1fr; }
+      .lens-thinker { display: none; }
+      .strip-chips { margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="top.html" class="nav-logo">未来社会ペルソナガチャ</a>
+    <a href="persona-card.html" class="nav-link">← ペルソナカードに戻る</a>
+  </div>
+</nav>
+
+<div class="page-body">
+
+  <div id="persona-strip"></div>
+
+  <div class="lead-section">
+    <div class="lead-eyebrow">Deep Dive</div>
+    <h1>人間の本質と比較する</h1>
+    <p>
+      文化人類学・神話・心理学・哲学が描いてきた「時代や文化を超えた行動原理」と、<br>
+      このペルソナを照らし合わせましょう。<br>
+      未来の姿の中に宿る「変わらない人間」の輪郭が見えてきます。
+    </p>
+  </div>
+
+  <div id="lens-panels"></div>
+
+  <div class="synthesis-section">
+    <div class="synthesis-eyebrow">Synthesis</div>
+    <h2>統合：変わるものと変わらないもの</h2>
+    <p class="sub">
+      4つの視点を通じて気づいたことを、最後に言語化してみましょう。
+    </p>
+    <div class="synthesis-cols">
+      <div class="field-group">
+        <div class="synthesis-col-label syn-change-label">変わること</div>
+        <textarea id="syn-change" rows="6"
+          placeholder="例：つながりの形・意思決定の主体・「安心」の根拠・「一人前」の基準が変わっている。"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="synthesis-col-label syn-const-label">変わらないこと</div>
+        <textarea id="syn-constant" rows="6"
+          placeholder="例：承認されたいという欲求、コミュニティへの帰属欲、試練を通じて成長するという物語の構造、意味を求める姿勢。"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="discussion-wrap">
+    <div class="discussion-label">ディスカッションメモ（音声書き起こし）</div>
+    <p class="voice-unsupported" id="cmp-unsupported">※ このブラウザは音声認識に対応していません。テキストを直接入力してください。</p>
+    <div class="voice-controls">
+      <button class="btn-record" id="cmp-record-btn" onclick="toggleRecord('cmp')">
+        <span class="rec-dot"></span><span class="rec-label">録音開始</span>
+      </button>
+      <span class="record-status" id="cmp-record-status"></span>
+    </div>
+    <p class="voice-interim" id="cmp-interim"></p>
+    <textarea id="cmp-discuss" rows="4"
+      placeholder="録音した内容がここに表示されます。直接編集することもできます。"></textarea>
+  </div>
+
+  <div class="page-nav">
+    <a href="persona-card.html" class="btn-nav">← ペルソナカードに戻る</a>
+    <a href="index.html" class="btn-nav">最初からやり直す</a>
+  </div>
+
+</div>
+
+<script>
+const drawn  = JSON.parse(localStorage.getItem('pg_drawn')   || 'null');
+const steps  = JSON.parse(localStorage.getItem('pg_steps')   || '{}');
+let   compare = JSON.parse(localStorage.getItem('pg_compare') || '{}');
+
+/* ── Lens definitions ── */
+const LENSES = [
+  {
+    id: 'anthro', cls: 'anthro', icon: '🏛',
+    discipline: '文化人類学',
+    framework:  '通過儀礼（Rites of Passage）',
+    thinker:    'A. ヴァン・ヘネップ / V. ターナー',
+    explanation:
+      'どの文化でも人間は「分離 → 移行（リミナリティ）→ 統合」という構造で、' +
+      'コミュニティへの帰属や社会的役割を更新してきた。' +
+      '入学・成人・結婚・就職など人生の節目には、' +
+      '「一人前」と認められるための儀礼的プロセスが存在する。' +
+      '移行期の「どちらでもない状態」こそが変容の核心とされる。',
+    q1label: 'このペルソナが経験する「通過儀礼」はどのようなものか？（何をもって一人前・仲間入りとされるか）',
+    q1ph:    '例：特定のスキルセットや実績ログを示すこと。複数コミュニティで信頼を積み重ねること。',
+    q2label: '現代の私たちの通過儀礼と比べて、何が変わり、何が変わっていないか？',
+    q2ph:    '例：「卒業証書」「入社」の形が変わった。しかし「承認される」という構造は残っている。',
+  },
+  {
+    id: 'myth', cls: 'myth', icon: '⚡',
+    discipline: '神話学',
+    framework:  '英雄の旅（モノミス）',
+    thinker:    'J. キャンベル',
+    explanation:
+      '世界中の神話に共通する物語構造「英雄の旅」。' +
+      '日常からの出発・師との出会い・試練と死と再生・変容・帰還——' +
+      'このパターンは、人間が変化・成長・意味探索をどう物語るかを示している。' +
+      '現代の映画や個人の人生語りにもこの構造は生き続けている。',
+    q1label: 'このペルソナにとっての「冒険への召命」と「試練」は何か？（何が境界を越えさせるか）',
+    q1ph:    '例：カオス（撹乱）が「出発のきっかけ」になっている。既存の帰属や役割を手放す選択。',
+    q2label: 'このペルソナは何を得て（宝・変容）、どんな「英雄」として帰還するか？',
+    q2ph:    '例：自分の意思決定を取り戻した人。複数の共同体をつなぐ媒介者として戻ってくる。',
+  },
+  {
+    id: 'psych', cls: 'psych', icon: '🧠',
+    discipline: '心理学',
+    framework:  '欲求階層 / 個性化',
+    thinker:    'A. マズロー / C.G. ユング',
+    explanation:
+      'マズローは「生理→安全→社会→承認→自己実現」の欲求階層を示した。' +
+      'ユングは「影（認めたくない自己）」や「元型（英雄・賢者・トリックスター等）」が' +
+      '行動を動かすと論じ、それらを統合していく「個性化」のプロセスを提唱した。' +
+      'どちらも人間の内的動機の普遍的構造を探る。',
+    q1label: 'このペルソナの欲求はどの層が中心か？満たされている欲求・脅かされている欲求は何か？',
+    q1ph:    '例：安全欲求の形が変わった（記録・可変性が安心）。承認は個人よりコミュニティ単位で得る。',
+    q2label: 'このペルソナの「影（認めたくない側面）」や「まだ統合されていないもの」はどこに見えるか？',
+    q2ph:    '例：効率への依存。「一人でいること」への恐れ。自分の判断への不安。',
+  },
+  {
+    id: 'philo', cls: 'philo', icon: '💭',
+    discipline: '哲学',
+    framework:  'ゾーン・ポリティコン',
+    thinker:    'アリストテレス / H. アーレント',
+    explanation:
+      'アリストテレスは「人間は本性上ポリス的（社会的）動物である」と言った。' +
+      'アーレントはそれを「複数性」と呼び、他者と共にいること・行為と言論・' +
+      '公共空間への参加が人間らしさの核だと論じた。' +
+      '「善く生きること（エウダイモニア）」は常に他者との関係の中にある。',
+    q1label: 'このペルソナにとっての「ポリス（公共空間）」はどこか？誰と何を共有しているか？',
+    q1ph:    '例：特定のオンラインコミュニティ。複数の小さな「公共」を行き来する。国家より小さい単位。',
+    q2label: '「善く生きること（エウダイモニア）」の形はどう変わっているか。変わっていないものは何か？',
+    q2ph:    '例：豊かさの基準が「所有」から「関係の質」に変わった。しかし「意味ある行為をしたい」は変わらない。',
+  },
+];
+
+/* ── Render ── */
+window.addEventListener('DOMContentLoaded', () => {
+  renderPersonaStrip();
+  renderLenses();
+  restoreAll();
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    const el = document.getElementById('cmp-unsupported');
+    const btn = document.getElementById('cmp-record-btn');
+    if (el) el.style.display = 'block';
+    if (btn) btn.style.display = 'none';
+  }
+
+  document.addEventListener('input', e => {
+    if (e.target.tagName === 'TEXTAREA') saveAll();
+  });
+});
+
+function renderPersonaStrip() {
+  const s4   = steps.step4 || {};
+  const name = s4.name   || '（名前未設定）';
+  const age  = s4.age    || '';
+  const vals = s4.values || '';
+
+  let chips = '';
+  if (drawn) {
+    if (drawn.social) chips += `<span class="strip-chip social">${esc(drawn.social.title)}</span>`;
+    if (drawn.chaos)  chips += `<span class="strip-chip chaos">${esc(drawn.chaos.title)}</span>`;
+    if (drawn.value)  chips += `<span class="strip-chip value">${esc(drawn.value.title)}</span>`;
+    if (drawn.life)   chips += `<span class="strip-chip life">${esc(drawn.life.title)}</span>`;
+  }
+
+  document.getElementById('persona-strip').innerHTML = `
+    <div class="persona-strip">
+      <div class="strip-main">
+        <div class="strip-name">${esc(name)}</div>
+        ${age  ? `<div class="strip-age">${esc(age)}</div>` : ''}
+        ${vals ? `<div class="strip-values">${esc(vals)}</div>` : ''}
+      </div>
+      ${chips ? `<div class="strip-chips">${chips}</div>` : ''}
+    </div>`;
+}
+
+function renderLenses() {
+  document.getElementById('lens-panels').innerHTML = LENSES.map(l => `
+    <div class="lens-card ${l.cls}">
+      <div class="lens-header">
+        <div class="lens-icon">${l.icon}</div>
+        <div class="lens-meta">
+          <div class="lens-discipline">${esc(l.discipline)}</div>
+          <div class="lens-framework">${esc(l.framework)}</div>
+        </div>
+        <div class="lens-thinker">${esc(l.thinker)}</div>
+      </div>
+      <div class="lens-body">
+        <div class="lens-explanation">
+          <div class="lens-exp-title">視点の概要</div>
+          <div class="lens-exp-text">${esc(l.explanation)}</div>
+        </div>
+        <div class="lens-fields">
+          <div class="field-group">
+            <label>${esc(l.q1label)}</label>
+            <textarea id="${l.id}-q1" rows="4" placeholder="${esc(l.q1ph)}"></textarea>
+          </div>
+          <div class="field-group">
+            <label>${esc(l.q2label)}</label>
+            <textarea id="${l.id}-q2" rows="4" placeholder="${esc(l.q2ph)}"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Save / Restore ── */
+function saveAll() {
+  compare = {};
+  LENSES.forEach(l => {
+    compare[l.id] = { q1: val(`${l.id}-q1`), q2: val(`${l.id}-q2`) };
+  });
+  compare.synthesis = { change: val('syn-change'), constant: val('syn-constant') };
+  compare.discuss   = val('cmp-discuss');
+  localStorage.setItem('pg_compare', JSON.stringify(compare));
+}
+
+function restoreAll() {
+  LENSES.forEach(l => {
+    if (compare[l.id]) {
+      set(`${l.id}-q1`, compare[l.id].q1);
+      set(`${l.id}-q2`, compare[l.id].q2);
+    }
+  });
+  if (compare.synthesis) {
+    set('syn-change',   compare.synthesis.change);
+    set('syn-constant', compare.synthesis.constant);
+  }
+  set('cmp-discuss', compare.discuss);
+}
+
+/* ── Voice transcription ── */
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recorders = {};
+
+function toggleRecord(stepId) {
+  if (recorders[stepId]) { stopRecord(stepId); } else { startRecord(stepId); }
+}
+
+function startRecord(stepId) {
+  if (!SpeechRecognition) return;
+  const rec = new SpeechRecognition();
+  rec.lang = 'ja-JP';
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  const textarea = document.getElementById(`${stepId}-discuss`);
+  const interim  = document.getElementById(`${stepId}-interim`);
+  let finalText  = textarea.value;
+
+  rec.onresult = (e) => {
+    let interimText = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        finalText += e.results[i][0].transcript;
+        textarea.value = finalText;
+        saveAll();
+      } else {
+        interimText += e.results[i][0].transcript;
+      }
+    }
+    if (interim) interim.textContent = interimText;
+  };
+
+  rec.onerror = () => stopRecord(stepId);
+  rec.onend   = () => {
+    if (recorders[stepId]) {
+      try { rec.start(); } catch(_) { stopRecord(stepId); }
+    }
+  };
+
+  rec.start();
+  recorders[stepId] = rec;
+  setRecordUI(stepId, true);
+}
+
+function stopRecord(stepId) {
+  if (recorders[stepId]) {
+    recorders[stepId].onend = null;
+    recorders[stepId].stop();
+    recorders[stepId] = null;
+  }
+  const interim = document.getElementById(`${stepId}-interim`);
+  if (interim) interim.textContent = '';
+  setRecordUI(stepId, false);
+}
+
+function setRecordUI(stepId, isRecording) {
+  const btn    = document.getElementById(`${stepId}-record-btn`);
+  const status = document.getElementById(`${stepId}-record-status`);
+  if (btn) {
+    btn.classList.toggle('recording', isRecording);
+    const label = btn.querySelector('.rec-label');
+    if (label) label.textContent = isRecording ? '録音停止' : '録音開始';
+  }
+  if (status) {
+    status.textContent = isRecording ? '録音中...' : '';
+    status.classList.toggle('active', isRecording);
+  }
+}
+
+/* ── Helpers ── */
+function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function set(id, v) { const el = document.getElementById(id); if (el && v) el.value = v; }
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
