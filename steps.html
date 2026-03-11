@@ -285,6 +285,24 @@
       box-shadow: 0 8px 28px rgba(92, 80, 214, 0.35);
     }
 
+    /* ── Discussion memo ── */
+    .discussion-wrap {
+      margin-bottom: 28px;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .discussion-label {
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .discussion-label::before {
+      content: '💬'; font-size: 0.85rem;
+    }
+
     /* ── Previous step summary ── */
     .prev-summary-card {
       background: var(--surface);
@@ -401,6 +419,12 @@
     </div>
   </div>
 
+  <div class="discussion-wrap">
+    <div class="discussion-label">ディスカッションメモ</div>
+    <textarea id="s1-discuss" rows="4"
+      placeholder="グループで話し合った内容・気づき・意見の違いなどを自由にメモしてください。"></textarea>
+  </div>
+
   <div class="pane-nav">
     <span></span>
     <button class="btn-nav primary" onclick="goToStep(2)">次へ →</button>
@@ -467,6 +491,12 @@
         <textarea id="s2-q4" rows="3" placeholder="例：経緯が見えること。複数の人が関わっていること。身体が感じること。"></textarea>
       </div>
     </div>
+  </div>
+
+  <div class="discussion-wrap">
+    <div class="discussion-label">ディスカッションメモ</div>
+    <textarea id="s2-discuss" rows="4"
+      placeholder="グループで話し合った内容・気づき・意見の違いなどを自由にメモしてください。"></textarea>
   </div>
 
   <div class="pane-nav">
@@ -536,6 +566,12 @@
         <textarea id="s3-d4" rows="3" placeholder="例：長い承認プロセス。経緯の見えない意思決定。"></textarea>
       </div>
     </div>
+  </div>
+
+  <div class="discussion-wrap">
+    <div class="discussion-label">ディスカッションメモ</div>
+    <textarea id="s3-discuss" rows="4"
+      placeholder="グループで話し合った内容・気づき・意見の違いなどを自由にメモしてください。"></textarea>
   </div>
 
   <div class="pane-nav">
@@ -624,6 +660,12 @@
         <button class="btn-generate" onclick="goToCard()">ペルソナカードを見る →</button>
       </div>
     </div>
+  </div>
+
+  <div class="discussion-wrap">
+    <div class="discussion-label">ディスカッションメモ</div>
+    <textarea id="s4-discuss" rows="4"
+      placeholder="グループで話し合った内容・気づき・意見の違いなどを自由にメモしてください。"></textarea>
   </div>
 
   <div class="pane-nav">
@@ -843,13 +885,14 @@ function goToStep(n) {
 /* ── Persist data ── */
 function saveAll() {
   steps.extraDrivers = extraDrivers;
-  steps.step1 = { memo: val('s1-memo') };
-  steps.step2 = { q1: val('s2-q1'), q2: val('s2-q2'), q3: val('s2-q3'), q4: val('s2-q4') };
-  steps.step3 = { d1: val('s3-d1'), d2: val('s3-d2'), d3: val('s3-d3'), d4: val('s3-d4') };
+  steps.step1 = { memo: val('s1-memo'), discuss: val('s1-discuss') };
+  steps.step2 = { q1: val('s2-q1'), q2: val('s2-q2'), q3: val('s2-q3'), q4: val('s2-q4'), discuss: val('s2-discuss') };
+  steps.step3 = { d1: val('s3-d1'), d2: val('s3-d2'), d3: val('s3-d3'), d4: val('s3-d4'), discuss: val('s3-discuss') };
   steps.step4 = {
     name: val('f-name'), age: val('f-age'), period: val('f-period'),
     values: val('f-values'), behaviors: val('f-behaviors'),
     strange: val('f-strange'), services: val('f-services'),
+    discuss: val('s4-discuss'),
   };
   localStorage.setItem('pg_steps', JSON.stringify(steps));
   // Firebase sync
@@ -862,20 +905,22 @@ function saveAll() {
 }
 
 function restoreAll() {
-  if (steps.step1) set('s1-memo', steps.step1.memo);
+  if (steps.step1) { set('s1-memo', steps.step1.memo); set('s1-discuss', steps.step1.discuss); }
   if (steps.step2) {
     set('s2-q1', steps.step2.q1); set('s2-q2', steps.step2.q2);
     set('s2-q3', steps.step2.q3); set('s2-q4', steps.step2.q4);
+    set('s2-discuss', steps.step2.discuss);
   }
   if (steps.step3) {
     set('s3-d1', steps.step3.d1); set('s3-d2', steps.step3.d2);
     set('s3-d3', steps.step3.d3); set('s3-d4', steps.step3.d4);
+    set('s3-discuss', steps.step3.discuss);
   }
   if (steps.step4) {
     set('f-name', steps.step4.name);   set('f-age', steps.step4.age);
     set('f-period', steps.step4.period); set('f-values', steps.step4.values);
     set('f-behaviors', steps.step4.behaviors); set('f-strange', steps.step4.strange);
-    set('f-services', steps.step4.services);
+    set('f-services', steps.step4.services); set('s4-discuss', steps.step4.discuss);
   }
 }
 
