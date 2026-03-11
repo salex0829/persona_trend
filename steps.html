@@ -372,6 +372,19 @@
       font-size: 0.8rem; color: var(--text); line-height: 1.6;
     }
 
+    /* ── Share button ── */
+    .btn-share {
+      display: none; align-items: center; gap: 6px;
+      padding: 8px 22px; border-radius: 8px;
+      border: 1.5px solid var(--c-life); color: var(--c-life);
+      background: var(--c-life-bg); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.25s; font-family: var(--font-sans);
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .btn-share:hover { background: var(--c-life); color: #fff; }
+    .btn-share.sent  { background: var(--c-life); color: #fff; pointer-events: none; }
+    .in-room .btn-share { display: flex; }
+
     /* ── Sync indicator ── */
     .sync-dot {
       width: 7px; height: 7px; border-radius: 50%;
@@ -484,6 +497,7 @@
 
   <div class="pane-nav">
     <span></span>
+    <button class="btn-share" onclick="shareNow(this)">↑ 更新を共有</button>
     <button class="btn-nav primary" onclick="goToStep(2)">次へ →</button>
   </div>
 </div>
@@ -566,6 +580,7 @@
 
   <div class="pane-nav">
     <button class="btn-nav" onclick="goToStep(1)">← 前へ</button>
+    <button class="btn-share" onclick="shareNow(this)">↑ 更新を共有</button>
     <button class="btn-nav primary" onclick="goToStep(3)">次へ →</button>
   </div>
 </div>
@@ -657,6 +672,7 @@
 
   <div class="pane-nav">
     <button class="btn-nav" onclick="goToStep(2)">← 前へ</button>
+    <button class="btn-share" onclick="shareNow(this)">↑ 更新を共有</button>
     <button class="btn-nav primary" onclick="goToStep(4)">次へ →</button>
   </div>
 </div>
@@ -759,6 +775,7 @@
 
   <div class="pane-nav">
     <button class="btn-nav" onclick="goToStep(3)">← 前へ</button>
+    <button class="btn-share" onclick="shareNow(this)">↑ 更新を共有</button>
     <a href="index.html" class="btn-nav">最初からやり直す</a>
   </div>
 </div>
@@ -805,6 +822,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('room-badge').style.display = 'inline-flex';
     document.getElementById('room-badge-text').textContent =
       `ルーム「${roomInfo.code}」— ${roomInfo.name}`;
+    document.querySelector('.page-body').classList.add('in-room');
   }
   if (!drawn) {
     document.querySelector('.page-body').innerHTML = `
@@ -999,6 +1017,22 @@ function saveAll() {
       .set({ steps, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: sessionId }, { merge: true })
       .catch(e => console.warn('Firebase save:', e.message));
   }
+}
+
+/* ── Share now ── */
+function shareNow(btn) {
+  saveAll();
+  // 全ての共有ボタンを一時的に完了状態にする
+  document.querySelectorAll('.btn-share').forEach(b => {
+    b.classList.add('sent');
+    b.textContent = '✓ 共有しました';
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.btn-share').forEach(b => {
+      b.classList.remove('sent');
+      b.textContent = '↑ 更新を共有';
+    });
+  }, 2000);
 }
 
 /* ── Real-time sync ── */

@@ -276,6 +276,18 @@
     }
     .voice-unsupported { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; display: none; }
 
+    /* ── Share button ── */
+    .btn-share {
+      display: none; align-items: center; gap: 6px;
+      padding: 10px 24px; border-radius: 8px;
+      border: 1.5px solid var(--c-life); color: var(--c-life);
+      background: var(--c-life-bg); font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; transition: all 0.25s; font-family: var(--font-sans);
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .btn-share:hover { background: var(--c-life); color: #fff; }
+    .btn-share.sent  { background: var(--c-life); color: #fff; pointer-events: none; }
+
     /* ── Page nav ── */
     .page-nav {
       display: flex; justify-content: space-between; align-items: center;
@@ -360,6 +372,7 @@
 
   <div class="page-nav">
     <a href="persona-card.html" class="btn-nav">← ペルソナカードに戻る</a>
+    <button class="btn-share" id="share-btn" onclick="shareNow()">↑ 更新を共有</button>
     <a href="index.html" class="btn-nav">最初からやり直す</a>
   </div>
 
@@ -452,6 +465,8 @@ window.addEventListener('DOMContentLoaded', () => {
   renderLenses();
   restoreAll();
   startSync();
+  // ルーム参加中のみ共有ボタンを表示
+  if (roomInfo) document.getElementById('share-btn').style.display = 'flex';
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
@@ -549,6 +564,18 @@ function startSync() {
       if (!data || data.updatedBy === sessionId) return;
       if (data.compare) applyRemoteCompare(data.compare);
     }, err => console.warn('Sync error:', err.message));
+}
+
+function shareNow() {
+  saveAll();
+  const btn = document.getElementById('share-btn');
+  if (!btn) return;
+  btn.classList.add('sent');
+  btn.textContent = '✓ 共有しました';
+  setTimeout(() => {
+    btn.classList.remove('sent');
+    btn.textContent = '↑ 更新を共有';
+  }, 2000);
 }
 
 function applyRemoteCompare(r) {
