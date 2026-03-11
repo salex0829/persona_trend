@@ -372,6 +372,14 @@
       font-size: 0.8rem; color: var(--text); line-height: 1.6;
     }
 
+    /* ── Sync indicator ── */
+    .sync-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--c-life); flex-shrink: 0;
+      animation: syncPulse 2s ease-in-out infinite;
+    }
+    @keyframes syncPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
     /* ── Responsive ── */
     @media (max-width: 680px) {
       .pane-cols { grid-template-columns: 1fr; gap: 24px; }
@@ -393,6 +401,7 @@
 
 <div class="room-badge" id="room-badge" style="display:none">
   <span>🏫</span><span id="room-badge-text"></span>
+  <span class="sync-dot" id="sync-dot" style="display:none" title="ライブ同期中"></span>
 </div>
 <h1>未来ペルソナを育てる</h1>
 
@@ -766,7 +775,8 @@ try {
   }
 } catch(e) { console.warn('Firebase unavailable:', e.message); }
 
-const roomInfo = JSON.parse(sessionStorage.getItem('pg_room') || 'null');
+const roomInfo  = JSON.parse(sessionStorage.getItem('pg_room') || 'null');
+const sessionId = Math.random().toString(36).slice(2, 10);
 
 const SOCIAL_DECK = [
   { title: "AIが合意形成を担う",             desc: "会議や相談ごとで、AIが結論づくりの一部を担っている。" },
@@ -811,6 +821,12 @@ window.addEventListener('DOMContentLoaded', () => {
   if (extraCount >= 2) document.getElementById('btn-extra').disabled = true;
   if (!val('f-period')) autoPopulatePeriod();
   showStep(1);
+  startSync();
+
+  // フィールドからフォーカスが外れたら自動保存
+  document.querySelectorAll('textarea, input[type="text"]').forEach(el => {
+    el.addEventListener('blur', saveAll);
+  });
 });
 
 /* ── Populate reference cards ── */
@@ -980,10 +996,66 @@ function saveAll() {
   if (db && roomInfo) {
     db.collection('rooms').doc(roomInfo.code)
       .collection('groups').doc(roomInfo.name)
-      .set({ steps, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+      .set({ steps, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: sessionId }, { merge: true })
       .catch(e => console.warn('Firebase save:', e.message));
   }
 }
+
+/* ── Real-time sync ── */
+function startSync() {
+  if (!db || !roomInfo) return;
+  db.collection('rooms').doc(roomInfo.code)
+    .collection('groups').doc(roomInfo.name)
+    .onSnapshot(snap => {
+      const data = snap.data();
+      if (!data || data.updatedBy === sessionId) return; // 自分の書き込みを無視
+      if (data.steps)   applyRemoteSteps(data.steps);
+      if (data.compare) applyRemoteCompare(data.compare);
+    }, err => console.warn('Sync error:', err.message));
+
+  const dot = document.getElementById('sync-dot');
+  if (dot) dot.style.display = 'block';
+}
+
+function applyRemoteSteps(r) {
+  // ローカルオブジェクトとlocalStorageを更新
+  Object.assign(steps, r);
+  localStorage.setItem('pg_steps', JSON.stringify(steps));
+
+  // フォーカス中のフィールドを除いて反映
+  const sync = (id, v) => {
+    const el = document.getElementById(id);
+    if (el && el !== document.activeElement) el.value = v || '';
+  };
+  if (r.step1) { sync('s1-memo', r.step1.memo); sync('s1-discuss', r.step1.discuss); }
+  if (r.step2) {
+    sync('s2-q1', r.step2.q1); sync('s2-q2', r.step2.q2);
+    sync('s2-q3', r.step2.q3); sync('s2-q4', r.step2.q4);
+    sync('s2-discuss', r.step2.discuss);
+  }
+  if (r.step3) {
+    sync('s3-d1', r.step3.d1); sync('s3-d2', r.step3.d2);
+    sync('s3-d3', r.step3.d3); sync('s3-d4', r.step3.d4);
+    sync('s3-d5', r.step3.d5); sync('s3-discuss', r.step3.discuss);
+  }
+  if (r.step4) {
+    sync('f-name', r.step4.name);         sync('f-age', r.step4.age);
+    sync('f-period', r.step4.period);     sync('f-values', r.step4.values);
+    sync('f-behaviors', r.step4.behaviors); sync('f-strange', r.step4.strange);
+    sync('f-services', r.step4.services); sync('s4-discuss', r.step4.discuss);
+  }
+  // 追加カードを同期
+  if (r.extraDrivers && JSON.stringify(r.extraDrivers) !== JSON.stringify(extraDrivers)) {
+    extraDrivers = r.extraDrivers;
+    extraCount = extraDrivers.length;
+    document.getElementById('extra-cards').innerHTML = '';
+    extraDrivers.forEach(c => appendExtraCard(c, false));
+    if (extraCount >= 2) document.getElementById('btn-extra').disabled = true;
+  }
+  updatePrevSummary(currentStep);
+}
+
+function applyRemoteCompare() { /* compare.html 側で処理 */ }
 
 function restoreAll() {
   if (steps.step1) { set('s1-memo', steps.step1.memo); set('s1-discuss', steps.step1.discuss); }

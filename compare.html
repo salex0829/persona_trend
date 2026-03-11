@@ -7,6 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -363,6 +366,17 @@
 </div>
 
 <script>
+// ── Firebase init ──
+let db = null;
+try {
+  if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+  }
+} catch(e) { console.warn('Firebase unavailable:', e.message); }
+
+const roomInfo  = JSON.parse(sessionStorage.getItem('pg_room') || 'null');
+const sessionId = Math.random().toString(36).slice(2, 10);
 const drawn  = JSON.parse(localStorage.getItem('pg_drawn')   || 'null');
 const steps  = JSON.parse(localStorage.getItem('pg_steps')   || '{}');
 let   compare = JSON.parse(localStorage.getItem('pg_compare') || '{}');
@@ -437,6 +451,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderPersonaStrip();
   renderLenses();
   restoreAll();
+  startSync();
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
@@ -515,6 +530,39 @@ function saveAll() {
   compare.synthesis = { change: val('syn-change'), constant: val('syn-constant') };
   compare.discuss   = val('cmp-discuss');
   localStorage.setItem('pg_compare', JSON.stringify(compare));
+  // Firebase sync
+  if (db && roomInfo) {
+    db.collection('rooms').doc(roomInfo.code)
+      .collection('groups').doc(roomInfo.name)
+      .set({ compare, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: sessionId }, { merge: true })
+      .catch(e => console.warn('Firebase save:', e.message));
+  }
+}
+
+/* ── Real-time sync ── */
+function startSync() {
+  if (!db || !roomInfo) return;
+  db.collection('rooms').doc(roomInfo.code)
+    .collection('groups').doc(roomInfo.name)
+    .onSnapshot(snap => {
+      const data = snap.data();
+      if (!data || data.updatedBy === sessionId) return;
+      if (data.compare) applyRemoteCompare(data.compare);
+    }, err => console.warn('Sync error:', err.message));
+}
+
+function applyRemoteCompare(r) {
+  Object.assign(compare, r);
+  localStorage.setItem('pg_compare', JSON.stringify(compare));
+  const sync = (id, v) => {
+    const el = document.getElementById(id);
+    if (el && el !== document.activeElement) el.value = v || '';
+  };
+  LENSES.forEach(l => {
+    if (r[l.id]) { sync(`${l.id}-q1`, r[l.id].q1); sync(`${l.id}-q2`, r[l.id].q2); }
+  });
+  if (r.synthesis) { sync('syn-change', r.synthesis.change); sync('syn-constant', r.synthesis.constant); }
+  sync('cmp-discuss', r.discuss);
 }
 
 function restoreAll() {

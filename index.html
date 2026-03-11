@@ -400,7 +400,7 @@ try {
 let roomInfo = JSON.parse(sessionStorage.getItem('pg_room') || 'null');
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (roomInfo) showRoomStatus();
+  if (roomInfo) { showRoomStatus(); }
   const inpRoom = document.getElementById('inp-room');
   if (inpRoom) {
     inpRoom.addEventListener('input', function() {
@@ -441,6 +441,37 @@ function showRoomStatus() {
   document.getElementById('room-status-bar').style.display = 'flex';
   document.getElementById('room-status-text').textContent =
     `✓  ルーム「${roomInfo.code}」— ${roomInfo.name} として参加中`;
+  startSync();
+}
+
+function startSync() {
+  if (!db || !roomInfo) return;
+  db.collection('rooms').doc(roomInfo.code)
+    .collection('groups').doc(roomInfo.name)
+    .onSnapshot(snap => {
+      const data = snap.data();
+      if (!data || !data.drawn) return;
+      // 自分が引いていないカードを他のメンバーの結果で補完
+      const cats = ['social', 'value', 'life', 'chaos'];
+      let updated = false;
+      cats.forEach(cat => {
+        if (!drawn[cat] && data.drawn[cat]) {
+          drawn[cat] = data.drawn[cat];
+          updated = true;
+          // 表示を更新
+          const display = document.getElementById(`display-${cat}`);
+          const panel   = document.getElementById(`panel-${cat}`);
+          if (display) {
+            display.innerHTML = `
+              <div class="card-number">No.${data.drawn[cat].index + 1}</div>
+              <div class="card-title card-reveal">${data.drawn[cat].title}</div>
+              <div class="card-desc card-reveal">${data.drawn[cat].desc}</div>`;
+          }
+          if (panel) panel.classList.remove('rolling');
+        }
+      });
+      if (updated) updateSummary();
+    }, err => console.warn('Sync error:', err.message));
 }
 
 const DECKS = {
