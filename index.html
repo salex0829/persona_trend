@@ -398,6 +398,7 @@ try {
 
 // ── Room state ──
 let roomInfo = JSON.parse(sessionStorage.getItem('pg_room') || 'null');
+const sessionId = Math.random().toString(36).slice(2, 10);
 
 window.addEventListener('DOMContentLoaded', () => {
   if (roomInfo) { showRoomStatus(); }
@@ -450,28 +451,36 @@ function startSync() {
     .collection('groups').doc(roomInfo.name)
     .onSnapshot(snap => {
       const data = snap.data();
-      if (!data || !data.drawn) return;
-      // 自分が引いていないカードを他のメンバーの結果で補完
+      if (!data || !data.drawn || data.updatedBy === sessionId) return;
       const cats = ['social', 'value', 'life', 'chaos'];
       let updated = false;
       cats.forEach(cat => {
-        if (!drawn[cat] && data.drawn[cat]) {
-          drawn[cat] = data.drawn[cat];
-          updated = true;
-          // 表示を更新
-          const display = document.getElementById(`display-${cat}`);
-          const panel   = document.getElementById(`panel-${cat}`);
-          if (display) {
-            display.innerHTML = `
-              <div class="card-number">No.${data.drawn[cat].index + 1}</div>
-              <div class="card-title card-reveal">${data.drawn[cat].title}</div>
-              <div class="card-desc card-reveal">${data.drawn[cat].desc}</div>`;
-          }
-          if (panel) panel.classList.remove('rolling');
+        const remote = data.drawn[cat];
+        if (!remote) return;
+        // 差分があるときだけ更新（アニメーション重複防止）
+        if (JSON.stringify(drawn[cat]) === JSON.stringify(remote)) return;
+        drawn[cat] = remote;
+        updated = true;
+        const display = document.getElementById(`display-${cat}`);
+        const panel   = document.getElementById(`panel-${cat}`);
+        if (display) {
+          display.innerHTML = `
+            <div class="card-number">No.${remote.index + 1} / ${DECKS[cat].length}</div>
+            <div class="card-title card-reveal">${remote.title}</div>
+            <div class="card-desc card-reveal">${remote.desc}</div>`;
         }
+        if (panel) panel.classList.remove('rolling');
       });
       if (updated) updateSummary();
     }, err => console.warn('Sync error:', err.message));
+}
+
+function saveDrawn() {
+  if (!db || !roomInfo) return;
+  db.collection('rooms').doc(roomInfo.code)
+    .collection('groups').doc(roomInfo.name)
+    .set({ drawn, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: sessionId }, { merge: true })
+    .catch(e => console.warn('Firebase save:', e.message));
 }
 
 const DECKS = {
@@ -563,6 +572,7 @@ function roll(cat) {
         <div class="card-desc card-reveal">${drawn[cat].desc}</div>`;
       panel.classList.remove('rolling');
       updateSummary();
+      saveDrawn();
     }
   }, 80);
 }
@@ -582,7 +592,7 @@ function goToSteps() {
   if (db && roomInfo) {
     db.collection('rooms').doc(roomInfo.code)
       .collection('groups').doc(roomInfo.name)
-      .set({ drawn, groupName: roomInfo.name, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+      .set({ drawn, groupName: roomInfo.name, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: sessionId }, { merge: true })
       .then(proceed).catch(proceed);
   } else { proceed(); }
 }
