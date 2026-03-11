@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ペルソナカード — 未来社会ガチャ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    :root {
+      --bg:           #f8f7f4;
+      --surface:      #ffffff;
+      --accent:       #5c50d6;
+      --accent-light: #ede9ff;
+      --text:         #1a1a1a;
+      --text-sub:     #6b6b6b;
+      --text-muted:   #a0a0a0;
+      --border:       #e8e6e0;
+      --border-inner: #f0eee8;
+      --c-social:     #2563eb;
+      --c-social-bg:  #eff6ff;
+      --c-value:      #7c3aed;
+      --c-value-bg:   #f5f3ff;
+      --c-life:       #059669;
+      --c-life-bg:    #ecfdf5;
+      --c-chaos:      #db2777;
+      --c-chaos-bg:   #fdf2f8;
+      --font-serif:   'Shippori Mincho', serif;
+      --font-sans:    'Noto Sans JP', sans-serif;
+    }
+
+    html { -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* ── Site nav ── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .nav-inner {
+      max-width: 760px; margin: 0 auto; padding: 0 24px;
+      height: 56px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .nav-left { display: flex; gap: 16px; align-items: center; }
+    .back-link {
+      font-size: 0.8125rem; color: var(--text-sub);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--accent); }
+    .btn-print {
+      padding: 6px 16px; background: transparent;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      color: var(--text-sub); font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; font-family: var(--font-sans);
+      letter-spacing: 0.04em; transition: all 0.2s;
+    }
+    .btn-print:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-restart {
+      font-size: 0.8125rem; color: var(--text-muted);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .btn-restart:hover { color: var(--text-sub); }
+
+    /* ── Page layout ── */
+    .page-body { max-width: 700px; margin: 0 auto; padding: 40px 20px 0; }
+
+    /* ── Persona card ── */
+    .persona-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+      animation: fadein 0.5s ease;
+      box-shadow: 0 2px 24px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Header */
+    .pc-header {
+      background: linear-gradient(135deg, #f5f3ff, #ede9ff);
+      padding: 32px 28px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .pc-header-top {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 20px;
+    }
+    .pc-name {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 2rem; color: var(--text);
+      letter-spacing: 0.04em; line-height: 1.2;
+    }
+    .pc-age { font-size: 0.9rem; color: var(--text-sub); margin-top: 4px; }
+    .pc-label {
+      font-size: 0.62rem; color: var(--accent);
+      letter-spacing: 0.18em; font-weight: 700; text-transform: uppercase;
+    }
+
+    /* World section */
+    .pc-world {
+      padding: 20px 28px; border-bottom: 1px solid var(--border-inner);
+      background: #faf9f7;
+    }
+    .pc-section-title {
+      font-size: 0.62rem; color: var(--text-muted);
+      letter-spacing: 0.14em; text-transform: uppercase;
+      font-weight: 700; margin-bottom: 12px;
+    }
+    .pc-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .pc-chip {
+      padding: 5px 13px; border-radius: 20px;
+      font-size: 0.76rem; font-weight: 600; border: 1px solid;
+    }
+    .pc-chip.social {
+      border-color: rgba(37, 99, 235, 0.3); color: var(--c-social);
+      background: var(--c-social-bg);
+    }
+    .pc-chip.value {
+      border-color: rgba(124, 58, 237, 0.3); color: var(--c-value);
+      background: var(--c-value-bg);
+    }
+    .pc-chip.life {
+      border-color: rgba(5, 150, 105, 0.3); color: var(--c-life);
+      background: var(--c-life-bg);
+    }
+    .pc-chip.chaos {
+      border-color: rgba(219, 39, 119, 0.3); color: var(--c-chaos);
+      background: var(--c-chaos-bg);
+    }
+
+    .pc-period {
+      font-size: 0.84rem; color: var(--text-sub);
+      line-height: 1.75; white-space: pre-wrap;
+    }
+
+    /* Body fields */
+    .pc-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+    .pc-field-label {
+      font-size: 0.62rem; color: var(--text-muted);
+      letter-spacing: 0.14em; text-transform: uppercase;
+      font-weight: 700; margin-bottom: 5px;
+    }
+    .pc-field-value {
+      font-size: 0.92rem; color: var(--text);
+      line-height: 1.8; white-space: pre-wrap;
+    }
+    .pc-field-divider { height: 1px; background: var(--border-inner); }
+
+    /* ── Context section ── */
+    .context-section {
+      margin-top: 28px; border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    .context-toggle {
+      width: 100%; text-align: left; padding: 14px 20px;
+      background: var(--surface); border: none;
+      color: var(--text-sub); font-size: 0.8rem;
+      font-family: var(--font-sans); cursor: pointer;
+      letter-spacing: 0.06em; display: flex;
+      justify-content: space-between; align-items: center;
+      transition: color 0.2s;
+    }
+    .context-toggle:hover { color: var(--accent); }
+    .context-body {
+      padding: 20px; background: var(--bg);
+      border-top: 1px solid var(--border); display: none;
+    }
+    .context-body.open { display: block; }
+    .context-group { margin-bottom: 24px; }
+    .context-group:last-child { margin-bottom: 0; }
+    .context-group-title {
+      font-size: 0.68rem; color: var(--text-muted);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      font-weight: 700; margin-bottom: 14px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .context-qa { margin-bottom: 14px; }
+    .context-q {
+      font-size: 0.76rem; color: var(--text-muted);
+      margin-bottom: 4px; line-height: 1.5;
+    }
+    .context-a {
+      font-size: 0.86rem; color: var(--text-sub);
+      line-height: 1.75; white-space: pre-wrap;
+    }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: #fff; color: #111; padding: 0; }
+      .site-nav, .context-section { display: none !important; }
+      .page-body { max-width: 100%; padding: 0; }
+      .persona-card {
+        background: #fff; border: 1px solid #ddd;
+        border-radius: 12px; box-shadow: none;
+      }
+      .pc-header { background: #f5f3ff; border-bottom: 1px solid #e0d8ff; }
+      .pc-name { color: #111; }
+      .pc-age, .pc-label { color: #555; }
+      .pc-world { background: #fafafa; border-bottom: 1px solid #eee; }
+      .pc-section-title, .pc-field-label { color: #888; }
+      .pc-period, .pc-field-value { color: #222; }
+      .pc-chip.social { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+      .pc-chip.value  { color: #6d28d9; background: #f5f3ff; border-color: #ddd6fe; }
+      .pc-chip.life   { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
+      .pc-chip.chaos  { color: #be185d; background: #fdf2f8; border-color: #fbcfe8; }
+      .pc-body { padding: 20px 28px; }
+      .pc-field-divider { background: #eee; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Site nav -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <div class="nav-left">
+      <a href="steps.html" class="back-link">← 編集に戻る</a>
+      <button class="btn-print" onclick="window.print()">印刷 / PDF</button>
+    </div>
+    <a href="index.html" class="btn-restart">最初からやり直す</a>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div id="persona-card"></div>
+  <div id="context-section"></div>
+  <div style="height:40px"></div>
+</div>
+
+<script>
+const drawn = JSON.parse(localStorage.getItem('pg_drawn') || 'null');
+const steps  = JSON.parse(localStorage.getItem('pg_steps')  || '{}');
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (!drawn && !steps.step4) {
+    document.getElementById('persona-card').innerHTML = `
+      <div style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+        データが見つかりません。<br>
+        <a href="steps.html" style="color:var(--accent);font-size:0.9rem">← ステップページへ戻る</a>
+      </div>`;
+    return;
+  }
+  renderCard();
+  renderContext();
+});
+
+function renderCard() {
+  const s4 = steps.step4 || {};
+  const extraDrivers = steps.extraDrivers || [];
+
+  const name      = s4.name      || '（名前未設定）';
+  const age       = s4.age;
+  const period    = s4.period;
+  const values    = s4.values;
+  const behaviors = s4.behaviors;
+  const strange   = s4.strange;
+  const services  = s4.services;
+
+  // World chips
+  const chipDefs = [];
+  if (drawn) {
+    chipDefs.push({ cls: 'social', title: drawn.social?.title });
+    chipDefs.push({ cls: 'chaos',  title: drawn.chaos?.title  });
+    chipDefs.push({ cls: 'value',  title: drawn.value?.title  });
+    chipDefs.push({ cls: 'life',   title: drawn.life?.title   });
+  }
+  extraDrivers.forEach(d => chipDefs.push({ cls: 'social', title: d.title }));
+  const chips = chipDefs.filter(c => c.title)
+    .map(c => `<span class="pc-chip ${c.cls}">${esc(c.title)}</span>`).join('');
+
+  // Body fields
+  const fields = [
+    { label: '大事にしている価値観',         value: values    },
+    { label: '特徴的な行動',                  value: behaviors },
+    { label: '今の人から見ると理解しにくい点', value: strange   },
+    { label: 'この人向けに必要なサービス',     value: services  },
+  ].filter(f => f.value);
+
+  const bodyHTML = fields.map((f, i) => `
+    ${i > 0 ? '<div class="pc-field-divider"></div>' : ''}
+    <div>
+      <div class="pc-field-label">${f.label}</div>
+      <div class="pc-field-value">${esc(f.value)}</div>
+    </div>`).join('');
+
+  document.getElementById('persona-card').innerHTML = `
+    <div class="persona-card">
+      <div class="pc-header">
+        <div class="pc-label">Future Persona</div>
+        <div class="pc-header-top">
+          <div>
+            <div class="pc-name">${esc(name)}</div>
+            ${age ? `<div class="pc-age">${esc(age)}</div>` : ''}
+          </div>
+        </div>
+      </div>
+      ${chips || period ? `
+      <div class="pc-world">
+        <div class="pc-section-title">世界の前提</div>
+        ${chips ? `<div class="pc-chips">${chips}</div>` : ''}
+        ${period ? `<div class="pc-period">${esc(period)}</div>` : ''}
+      </div>` : ''}
+      ${bodyHTML ? `<div class="pc-body">${bodyHTML}</div>` : ''}
+    </div>`;
+}
+
+function renderContext() {
+  const s2 = steps.step2 || {};
+  const s3 = steps.step3 || {};
+
+  const q2 = [
+    { q: 'この環境で生きる人にとって、何が「安心」か', a: s2.q1 },
+    { q: '何が「恥ずかしい」「古い」と感じられるか',  a: s2.q2 },
+    { q: '何に時間を使うことが「豊か」とされるか',    a: s2.q3 },
+    { q: '何を信用するか',                            a: s2.q4 },
+  ].filter(x => x.a);
+
+  const q3 = [
+    { q: '朝起きて最初に何をするか',               a: s3.d1 },
+    { q: 'どんな相手と意思決定するか',             a: s3.d2 },
+    { q: '移動・買い物・学習・ケアをどう行うか',   a: s3.d3 },
+    { q: '何を煩わしいと思うか',                   a: s3.d4 },
+  ].filter(x => x.a);
+
+  if (!q2.length && !q3.length) return;
+
+  const qaHTML = (list) => list.map(x => `
+    <div class="context-qa">
+      <div class="context-q">${esc(x.q)}</div>
+      <div class="context-a">${esc(x.a)}</div>
+    </div>`).join('');
+
+  let inner = '';
+  if (q2.length) inner += `
+    <div class="context-group">
+      <div class="context-group-title">価値観の転換（Step 2）</div>
+      ${qaHTML(q2)}
+    </div>`;
+  if (q3.length) inner += `
+    <div class="context-group">
+      <div class="context-group-title">日常の記述（Step 3）</div>
+      ${qaHTML(q3)}
+    </div>`;
+
+  document.getElementById('context-section').innerHTML = `
+    <div class="context-section">
+      <button class="context-toggle" onclick="toggleContext(this)">
+        <span>思考の過程を見る（Step 2 · 3 の回答）</span>
+        <span>▼</span>
+      </button>
+      <div class="context-body">${inner}</div>
+    </div>`;
+}
+
+function toggleContext(btn) {
+  const body  = btn.nextElementSibling;
+  const arrow = btn.querySelector('span:last-child');
+  const open  = body.classList.toggle('open');
+  arrow.textContent = open ? '▲' : '▼';
+}
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

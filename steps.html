@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ペルソナ作成 — 未来社会ガチャ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    :root {
+      --bg:           #f8f7f4;
+      --surface:      #ffffff;
+      --accent:       #5c50d6;
+      --accent-light: #ede9ff;
+      --text:         #1a1a1a;
+      --text-sub:     #6b6b6b;
+      --text-muted:   #a0a0a0;
+      --border:       #e8e6e0;
+      --c-social:     #2563eb;
+      --c-social-bg:  #eff6ff;
+      --c-value:      #7c3aed;
+      --c-value-bg:   #f5f3ff;
+      --c-life:       #059669;
+      --c-life-bg:    #ecfdf5;
+      --c-chaos:      #db2777;
+      --c-chaos-bg:   #fdf2f8;
+      --font-serif:   'Shippori Mincho', serif;
+      --font-sans:    'Noto Sans JP', sans-serif;
+    }
+
+    html { -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Site nav ── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1000px; margin: 0 auto; padding: 0 24px;
+      height: 56px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 0.9375rem; color: var(--text); text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .nav-link {
+      font-size: 0.8125rem; color: var(--text-sub);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--accent); }
+
+    /* ── Page body ── */
+    .page-body { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ── Room badge ── */
+    .room-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; background: var(--c-life-bg);
+      border: 1px solid #a7f3d0; border-radius: 20px;
+      font-size: 0.72rem; color: var(--c-life);
+      margin-bottom: 16px; letter-spacing: 0.04em; font-weight: 500;
+    }
+
+    h1 {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 1.5rem; color: var(--text);
+      letter-spacing: 0.04em; margin-bottom: 28px; text-align: center;
+    }
+
+    /* ── Progress ── */
+    .progress-wrap { max-width: 560px; margin: 0 auto 40px; }
+    .progress-track {
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .prog-step {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 6px; flex: 1;
+    }
+    .prog-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--surface);
+      color: var(--text-muted); display: flex; align-items: center;
+      justify-content: center; font-size: 0.82rem; font-weight: 700;
+      transition: all 0.3s; flex-shrink: 0;
+    }
+    .prog-dot.active { border-color: var(--accent); color: var(--accent); }
+    .prog-dot.done   { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .prog-label {
+      font-size: 0.62rem; color: var(--text-muted);
+      text-align: center; letter-spacing: 0.04em;
+      line-height: 1.3; transition: color 0.3s;
+    }
+    .prog-step.active .prog-label { color: var(--accent); }
+    .prog-step.done   .prog-label { color: var(--text-sub); }
+    .prog-connector {
+      flex: 1; height: 2px; background: var(--border);
+      margin-top: 15px; max-width: 56px; transition: background 0.3s;
+    }
+    .prog-connector.done { background: var(--accent); }
+
+    /* ── Pane ── */
+    .pane { }
+    .pane.hidden { display: none; }
+
+    .pane-intro { margin-bottom: 28px; }
+    .step-badge {
+      font-size: 0.68rem; color: var(--accent); letter-spacing: 0.14em;
+      font-weight: 700; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .pane h2 {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 1.375rem; color: var(--text);
+      margin-bottom: 8px; letter-spacing: 0.02em;
+    }
+    .step-desc {
+      font-size: 0.875rem; color: var(--text-sub);
+      line-height: 1.75;
+    }
+
+    /* ── Two-column layout ── */
+    .pane-cols {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      gap: 40px;
+      align-items: start;
+      margin-bottom: 32px;
+    }
+
+    /* ── Left column: reference + examples ── */
+    .pane-left { display: flex; flex-direction: column; gap: 14px; }
+
+    .ref-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+    }
+    .ref-card.social { border-left: 3px solid var(--c-social); }
+    .ref-card.value  { border-left: 3px solid var(--c-value); }
+    .ref-card.life   { border-left: 3px solid var(--c-life); }
+    .ref-card.chaos  { border-left: 3px solid var(--c-chaos); }
+    .ref-card-cat {
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px;
+    }
+    .ref-card.social .ref-card-cat { color: var(--c-social); }
+    .ref-card.value  .ref-card-cat { color: var(--c-value); }
+    .ref-card.life   .ref-card-cat { color: var(--c-life); }
+    .ref-card.chaos  .ref-card-cat { color: var(--c-chaos); }
+    .ref-card-title {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 0.9375rem; color: var(--text); margin-bottom: 4px;
+    }
+    .ref-card-desc { font-size: 0.78rem; color: var(--text-sub); line-height: 1.6; }
+
+    /* Extra draw */
+    .btn-extra {
+      width: 100%; padding: 8px 16px; background: transparent;
+      color: var(--c-social); border: 1.5px solid var(--c-social);
+      border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: var(--font-sans);
+      letter-spacing: 0.04em; text-align: center;
+    }
+    .btn-extra:hover { background: var(--c-social-bg); }
+    .btn-extra:disabled { opacity: 0.4; cursor: not-allowed; }
+    #extra-cards { display: flex; flex-direction: column; gap: 10px; }
+    .extra-card-appear { animation: reveal 0.4s ease; }
+
+    /* Example box */
+    .example-box {
+      background: var(--accent-light);
+      border-radius: 12px; padding: 16px 18px;
+    }
+    .example-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+    }
+    .example-text {
+      font-size: 0.82rem; color: var(--text); line-height: 1.7;
+    }
+    .example-qa { margin-bottom: 10px; }
+    .example-qa:last-child { margin-bottom: 0; }
+    .example-q {
+      font-size: 0.68rem; font-weight: 500; color: var(--text-sub);
+      margin-bottom: 2px; line-height: 1.4;
+    }
+    .example-a { font-size: 0.81rem; color: var(--text); line-height: 1.65; }
+
+    /* Example persona (step 4) */
+    .example-persona {
+      background: var(--accent-light);
+      border-radius: 12px; padding: 16px 18px;
+    }
+    .ex-persona-header {
+      display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px;
+    }
+    .ex-persona-name {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 1.05rem; color: var(--text);
+    }
+    .ex-persona-age { font-size: 0.8rem; color: var(--text-sub); }
+    .ex-field { margin-bottom: 10px; }
+    .ex-field:last-child { margin-bottom: 0; }
+    .ex-field-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 2px;
+    }
+    .ex-field-value { font-size: 0.81rem; color: var(--text); line-height: 1.65; }
+
+    /* ── Right column: input fields ── */
+    .pane-right { display: flex; flex-direction: column; gap: 0; }
+
+    .field-group { margin-bottom: 18px; }
+    .field-group:last-child { margin-bottom: 0; }
+    .field-group label {
+      display: block; font-size: 0.8125rem; font-weight: 500;
+      color: var(--text-sub); margin-bottom: 6px;
+      letter-spacing: 0.01em; line-height: 1.5;
+    }
+    textarea, input[type="text"] {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: var(--font-sans);
+      font-size: 0.875rem; line-height: 1.7;
+      padding: 10px 13px; resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea:focus, input[type="text"]:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    textarea::placeholder, input::placeholder { color: var(--text-muted); }
+
+    .form-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+
+    /* ── Navigation ── */
+    .pane-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 20px; border-top: 1px solid var(--border);
+    }
+    .btn-nav {
+      padding: 10px 28px; border-radius: 8px;
+      border: 1.5px solid var(--border); background: transparent;
+      color: var(--text-sub); font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; font-family: var(--font-sans);
+      letter-spacing: 0.04em; text-decoration: none; display: inline-block;
+    }
+    .btn-nav:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-nav.primary {
+      border-color: var(--accent); color: var(--accent); background: var(--surface);
+    }
+    .btn-nav.primary:hover { background: var(--accent); color: #fff; }
+
+    /* ── Generate button ── */
+    .generate-wrap { text-align: center; margin-bottom: 20px; }
+    .btn-generate {
+      padding: 14px 52px; background: var(--accent);
+      color: #fff; border: none; border-radius: 100px;
+      font-size: 1rem; font-weight: 700; letter-spacing: 0.06em;
+      cursor: pointer; transition: all 0.2s; font-family: var(--font-sans);
+      box-shadow: 0 4px 20px rgba(92, 80, 214, 0.25);
+    }
+    .btn-generate:hover {
+      background: #4b40c4; transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(92, 80, 214, 0.35);
+    }
+
+    /* ── Previous step summary ── */
+    .prev-summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+    }
+    .prev-summary-title {
+      font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px;
+    }
+    .prev-summary-section { margin-bottom: 10px; }
+    .prev-summary-section:last-child { margin-bottom: 0; }
+    .prev-summary-step-label {
+      font-size: 0.6rem; font-weight: 700;
+      color: var(--accent); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 6px;
+      padding-bottom: 4px; border-bottom: 1px solid var(--border);
+    }
+    .prev-summary-item { margin-bottom: 6px; }
+    .prev-summary-item:last-child { margin-bottom: 0; }
+    .prev-summary-q {
+      font-size: 0.65rem; color: var(--text-muted);
+      margin-bottom: 1px; line-height: 1.4;
+    }
+    .prev-summary-a {
+      font-size: 0.8rem; color: var(--text); line-height: 1.6;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .pane-cols { grid-template-columns: 1fr; gap: 24px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Site nav -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="top.html" class="nav-logo">未来社会ペルソナガチャ</a>
+    <a href="index.html" class="nav-link">← ガチャに戻る</a>
+  </div>
+</nav>
+
+<div class="page-body">
+
+<div class="room-badge" id="room-badge" style="display:none">
+  <span>🏫</span><span id="room-badge-text"></span>
+</div>
+<h1>未来ペルソナを育てる</h1>
+
+<!-- ── Progress ── -->
+<div class="progress-wrap">
+  <div class="progress-track">
+    <div class="prog-step active" id="ps-1">
+      <div class="prog-dot active" id="pd-1">1</div>
+      <div class="prog-label">変化<br>ドライバー</div>
+    </div>
+    <div class="prog-connector" id="pc-1"></div>
+    <div class="prog-step" id="ps-2">
+      <div class="prog-dot" id="pd-2">2</div>
+      <div class="prog-label">価値観の<br>転換</div>
+    </div>
+    <div class="prog-connector" id="pc-2"></div>
+    <div class="prog-step" id="ps-3">
+      <div class="prog-dot" id="pd-3">3</div>
+      <div class="prog-label">日常を<br>書く</div>
+    </div>
+    <div class="prog-connector" id="pc-3"></div>
+    <div class="prog-step" id="ps-4">
+      <div class="prog-dot" id="pd-4">4</div>
+      <div class="prog-label">プロ<br>フィール</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     Step 1: 変化ドライバーを選ぶ
+════════════════════════════════════════════ -->
+<div id="pane-1" class="pane">
+  <div class="pane-intro">
+    <div class="step-badge">Step 1 / 4</div>
+    <h2>変化ドライバーを選ぶ</h2>
+    <p class="step-desc">
+      ガチャで引いたカードが、この世界を揺らしている条件です。<br>
+      必要なら社会変化カードをもう1〜2枚追加して、前提をかためましょう。
+    </p>
+  </div>
+
+  <div class="pane-cols">
+    <!-- Left: reference cards + example -->
+    <div class="pane-left">
+      <div id="driver-social" class="ref-card social"></div>
+      <div id="driver-chaos"  class="ref-card chaos"></div>
+
+      <button class="btn-extra" id="btn-extra" onclick="drawExtra()">+ 社会変化カードをもう1枚引く</button>
+      <div id="extra-cards"></div>
+
+      <div class="example-box">
+        <div class="example-label">記入例</div>
+        <div class="example-text">AIが多くの意思決定を補助し、所有より利用権が当たり前になった社会。複数のコミュニティを行き来しながら生きる人が多くなり、デジタルと現実の境界が薄れている。</div>
+      </div>
+    </div>
+
+    <!-- Right: input -->
+    <div class="pane-right">
+      <div class="field-group">
+        <label>この世界の前提を、自分の言葉でまとめてみましょう（任意）</label>
+        <textarea id="s1-memo" rows="10"
+          placeholder="引いたカードをもとに、この社会の状況を自由に書いてみてください。"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane-nav">
+    <span></span>
+    <button class="btn-nav primary" onclick="goToStep(2)">次へ →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     Step 2: 価値観の転換を考える
+════════════════════════════════════════════ -->
+<div id="pane-2" class="pane hidden">
+  <div class="pane-intro">
+    <div class="step-badge">Step 2 / 4</div>
+    <h2>価値観の転換を考える</h2>
+    <p class="step-desc">
+      この環境の中で生きる人は、何を重視するようになるか。<br>
+      引いた価値観カードをヒントに、内面の規範を探りましょう。
+    </p>
+  </div>
+
+  <div class="pane-cols">
+    <!-- Left: reference card + examples -->
+    <div class="pane-left">
+      <div id="ref-value" class="ref-card value"></div>
+
+      <div id="prev-summary-2" style="display:none"></div>
+
+      <div class="example-box">
+        <div class="example-label">記入例</div>
+        <div class="example-qa">
+          <div class="example-q">何が「安心」か</div>
+          <div class="example-a">記録が残ること。変えられること。誰かとゆるくつながっていること。</div>
+        </div>
+        <div class="example-qa">
+          <div class="example-q">何が「恥ずかしい・古い」か</div>
+          <div class="example-a">一つの会社に縛られること。自分一人でやりきろうとすること。</div>
+        </div>
+        <div class="example-qa">
+          <div class="example-q">何に使う時間が「豊か」か</div>
+          <div class="example-a">深く没頭する時間。静かな余白。ケアに費やす時間。</div>
+        </div>
+        <div class="example-qa">
+          <div class="example-q">何を「信用」するか</div>
+          <div class="example-a">経緯が見えること。複数の人が関わっていること。身体が感じること。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: input fields -->
+    <div class="pane-right">
+      <div class="field-group">
+        <label>この環境で生きる人にとって、何が「安心」か</label>
+        <textarea id="s2-q1" rows="3" placeholder="例：記録が残ること。変えられること。誰かとつながっていること。"></textarea>
+      </div>
+      <div class="field-group">
+        <label>何が「恥ずかしい」「古い」と感じられるか</label>
+        <textarea id="s2-q2" rows="3" placeholder="例：一つの会社に縛られること。自分でやりきろうとすること。"></textarea>
+      </div>
+      <div class="field-group">
+        <label>何に時間を使うことが「豊か」とされるか</label>
+        <textarea id="s2-q3" rows="3" placeholder="例：深く没頭する時間。静かな余白。ケアに費やす時間。"></textarea>
+      </div>
+      <div class="field-group">
+        <label>何を信用するか</label>
+        <textarea id="s2-q4" rows="3" placeholder="例：経緯が見えること。複数の人が関わっていること。身体が感じること。"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane-nav">
+    <button class="btn-nav" onclick="goToStep(1)">← 前へ</button>
+    <button class="btn-nav primary" onclick="goToStep(3)">次へ →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     Step 3: 日常を書く
+════════════════════════════════════════════ -->
+<div id="pane-3" class="pane hidden">
+  <div class="pane-intro">
+    <div class="step-badge">Step 3 / 4</div>
+    <h2>日常を書く</h2>
+    <p class="step-desc">
+      この価値観を持つ人の、ある1日を想像して書いてみましょう。<br>
+      生活領域カードのテーマを軸に、具体的な行動を描きます。
+    </p>
+  </div>
+
+  <div class="pane-cols">
+    <!-- Left: reference cards + examples -->
+    <div class="pane-left">
+      <div id="ref-life"   class="ref-card life"></div>
+      <div id="ref-chaos2" class="ref-card chaos"></div>
+
+      <div id="prev-summary-3" style="display:none"></div>
+
+      <div class="example-box">
+        <div class="example-label">記入例</div>
+        <div class="example-qa">
+          <div class="example-q">朝起きて最初に何をするか</div>
+          <div class="example-a">体調ログを確認し、AIに今日の優先順位を3つ提案してもらう。自分で1つ削る。</div>
+        </div>
+        <div class="example-qa">
+          <div class="example-q">どんな相手と意思決定するか</div>
+          <div class="example-a">AIエージェント。プロジェクトのコアメンバー2〜3人。オンラインコミュニティの信頼できる数人。</div>
+        </div>
+        <div class="example-qa">
+          <div class="example-q">移動・買い物・学習・ケアをどう行うか</div>
+          <div class="example-a">移動はシェア型サブスク。学習はコミュニティ内の相互教授。ケアは地域ネットと分担。</div>
+        </div>
+        <div class="example-qa">
+          <div class="example-q">何を煩わしいと思うか</div>
+          <div class="example-a">長い承認プロセス。経緯の見えない意思決定。一つの役割に固定されること。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: input fields -->
+    <div class="pane-right">
+      <div class="field-group">
+        <label>朝起きて最初に何をするか</label>
+        <textarea id="s3-d1" rows="3" placeholder="例：体調ログを確認し、AIに今日の優先順位を提案してもらう。"></textarea>
+      </div>
+      <div class="field-group">
+        <label>どんな相手と意思決定するか</label>
+        <textarea id="s3-d2" rows="3" placeholder="例：AIエージェント、プロジェクトのコアメンバー2〜3人、オンラインコミュニティ。"></textarea>
+      </div>
+      <div class="field-group">
+        <label>移動・買い物・学習・ケアをどう行うか</label>
+        <textarea id="s3-d3" rows="3" placeholder="例：移動はシェア型サブスク。学習はコミュニティ内の相互教授。"></textarea>
+      </div>
+      <div class="field-group">
+        <label>何を煩わしいと思うか</label>
+        <textarea id="s3-d4" rows="3" placeholder="例：長い承認プロセス。経緯の見えない意思決定。"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane-nav">
+    <button class="btn-nav" onclick="goToStep(2)">← 前へ</button>
+    <button class="btn-nav primary" onclick="goToStep(4)">次へ →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     Step 4: プロフィール化する
+════════════════════════════════════════════ -->
+<div id="pane-4" class="pane hidden">
+  <div class="pane-intro">
+    <div class="step-badge">Step 4 / 4</div>
+    <h2>プロフィール化する</h2>
+    <p class="step-desc">
+      未来人をカードにまとめましょう。<br>
+      時代背景はこれまでのカードから自動入力されます。自由に編集してください。
+    </p>
+  </div>
+
+  <div class="pane-cols">
+    <!-- Left: example persona -->
+    <div class="pane-left">
+      <div id="prev-summary-4" style="display:none"></div>
+
+      <div class="example-persona">
+        <div class="example-label">記入例</div>
+        <div class="ex-persona-header">
+          <div class="ex-persona-name">清水 あおい</div>
+          <div class="ex-persona-age">32歳</div>
+        </div>
+        <div class="ex-field">
+          <div class="ex-field-label">大事にしている価値観</div>
+          <div class="ex-field-value">AIと協調しながらも、自分の意思決定の主体性を守ること。「利用する」と「依存する」の境界を意識的に引く。</div>
+        </div>
+        <div class="ex-field">
+          <div class="ex-field-label">特徴的な行動</div>
+          <div class="ex-field-value">毎朝AIに優先タスクを3つ提案してもらい、自分で1つ削る。会議は週2回以内に絞る。</div>
+        </div>
+        <div class="ex-field">
+          <div class="ex-field-label">今の人から見ると理解しにくい点</div>
+          <div class="ex-field-value">スマートフォンを所有していない。AIエージェントが通知管理をすべて行う。「何もしない時間」をカレンダーに予約している。</div>
+        </div>
+        <div class="ex-field">
+          <div class="ex-field-label">この人向けに必要なサービス</div>
+          <div class="ex-field-value">複数のAIエージェントを意図だけで指示できるオーケストレーター。感情状態の可視化ウェアラブル。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: input form -->
+    <div class="pane-right">
+      <div class="form-row" style="margin-bottom:18px">
+        <div class="field-group" style="margin-bottom:0">
+          <label>名前</label>
+          <input type="text" id="f-name" placeholder="この未来人の名前">
+        </div>
+        <div class="field-group" style="margin-bottom:0">
+          <label>年齢</label>
+          <input type="text" id="f-age" placeholder="例：34歳">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>時代背景</label>
+        <textarea id="f-period" rows="3"></textarea>
+      </div>
+      <div class="field-group">
+        <label>大事にしている価値観</label>
+        <textarea id="f-values" rows="3" placeholder="Step 2 で考えた内容を凝縮して"></textarea>
+      </div>
+      <div class="field-group">
+        <label>特徴的な行動</label>
+        <textarea id="f-behaviors" rows="3" placeholder="Step 3 で描いた日常の中から印象的なものを"></textarea>
+      </div>
+      <div class="field-group">
+        <label>今の人から見ると理解しにくい点</label>
+        <textarea id="f-strange" rows="3" placeholder="例：意思決定をAIに委ねることに抵抗がない。所有物がほとんどない。"></textarea>
+      </div>
+      <div class="field-group">
+        <label>この人向けに必要なサービス</label>
+        <textarea id="f-services" rows="3" placeholder="例：感情状態を可視化するウェアラブル。複数コミュニティを横断する信頼スコア。"></textarea>
+      </div>
+
+      <div class="generate-wrap">
+        <button class="btn-generate" onclick="goToCard()">ペルソナカードを見る →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane-nav">
+    <button class="btn-nav" onclick="goToStep(3)">← 前へ</button>
+    <a href="index.html" class="btn-nav">最初からやり直す</a>
+  </div>
+</div>
+
+</div><!-- /page-body -->
+
+<script>
+// ── Firebase init ──
+let db = null;
+try {
+  if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+  }
+} catch(e) { console.warn('Firebase unavailable:', e.message); }
+
+const roomInfo = JSON.parse(sessionStorage.getItem('pg_room') || 'null');
+
+const SOCIAL_DECK = [
+  { title: "AIが合意形成を担う",             desc: "会議や相談ごとで、AIが結論づくりの一部を担っている。" },
+  { title: "AIが個人の代理で交渉する",        desc: "人の代わりに、AIが予定・契約・条件交渉を行う。" },
+  { title: "感情や体調が常時推定される",      desc: "気分や疲労の状態が、日常的に可視化されている。" },
+  { title: "教育が年齢で区切られない",        desc: "何歳でも学び直しや越級が自然になっている。" },
+  { title: "仕事がプロジェクト参加型になる",  desc: "所属よりも、その都度どの活動に加わるかが重視される。" },
+  { title: "評価が学歴より記録で決まる",      desc: "肩書きよりも、実際の行動や貢献のログが見られる。" },
+  { title: "所有より利用権が一般化する",      desc: "持つことより、必要なときに使えることが価値になる。" },
+  { title: "家族が契約で再編される",          desc: "血縁だけでなく、合意によって家族的関係がつくられる。" },
+  { title: "健康管理が予防中心になる",        desc: "病気になってからではなく、日常の調整が重視される。" },
+  { title: "育児や介護を家族外で担う",        desc: "ケアは家庭の中だけでなく、社会全体で分担される。" },
+  { title: "個人データの主導権が本人に戻る",  desc: "自分の情報を誰に、どこまで渡すかを本人が決める。" },
+  { title: "複数コミュニティ所属が前提になる", desc: "一つの会社や地域ではなく、複数の場を行き来して生きる。" },
+];
+
+const drawn = JSON.parse(localStorage.getItem('pg_drawn') || 'null');
+const steps  = JSON.parse(localStorage.getItem('pg_steps')  || '{}');
+
+let currentStep  = 1;
+let extraDrivers = steps.extraDrivers || [];
+let extraCount   = extraDrivers.length;
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (roomInfo) {
+    document.getElementById('room-badge').style.display = 'inline-flex';
+    document.getElementById('room-badge-text').textContent =
+      `ルーム「${roomInfo.code}」— ${roomInfo.name}`;
+  }
+  if (!drawn) {
+    document.querySelector('.page-body').innerHTML = `
+      <div style="text-align:center;padding:80px 20px">
+        <p style="color:var(--text-muted);margin-bottom:20px;font-size:0.9rem">ガチャのデータが見つかりません。</p>
+        <a href="index.html" style="color:var(--accent);font-size:0.9rem">← ガチャページへ戻る</a>
+      </div>`;
+    return;
+  }
+
+  populateRefCards();
+  restoreAll();
+  extraDrivers.forEach(c => appendExtraCard(c, false));
+  if (extraCount >= 2) document.getElementById('btn-extra').disabled = true;
+  if (!val('f-period')) autoPopulatePeriod();
+  showStep(1);
+});
+
+/* ── Populate reference cards ── */
+function populateRefCards() {
+  setCard('driver-social', drawn.social, 'social', '社会変化');
+  setCard('driver-chaos',  drawn.chaos,  'chaos',  'カオス（撹乱）');
+  setCard('ref-value',     drawn.value,  'value',  '価値観');
+  setCard('ref-life',      drawn.life,   'life',   '生活領域');
+  setCard('ref-chaos2',    drawn.chaos,  'chaos',  'カオス（撹乱）');
+}
+
+function setCard(id, card, cls, label) {
+  const el = document.getElementById(id);
+  if (!el || !card) return;
+  el.innerHTML = `
+    <div class="ref-card-cat">${label}</div>
+    <div class="ref-card-title">${esc(card.title)}</div>
+    <div class="ref-card-desc">${esc(card.desc)}</div>`;
+}
+
+/* ── Extra draw (Step 1) ── */
+function drawExtra() {
+  if (extraCount >= 2) return;
+  const exclude = [drawn.social.index, ...extraDrivers.map(d => d.index)];
+  let i;
+  do { i = Math.floor(Math.random() * SOCIAL_DECK.length); } while (exclude.includes(i));
+  const card = { ...SOCIAL_DECK[i], index: i };
+  extraDrivers.push(card);
+  extraCount++;
+  appendExtraCard(card, true);
+  if (extraCount >= 2) document.getElementById('btn-extra').disabled = true;
+  saveAll();
+}
+
+function appendExtraCard(card, animate) {
+  const el = document.createElement('div');
+  el.className = 'ref-card social' + (animate ? ' extra-card-appear' : '');
+  el.innerHTML = `
+    <div class="ref-card-cat">社会変化（追加）</div>
+    <div class="ref-card-title">${esc(card.title)}</div>
+    <div class="ref-card-desc">${esc(card.desc)}</div>`;
+  document.getElementById('extra-cards').appendChild(el);
+}
+
+/* ── Auto-populate Step 4 period ── */
+function autoPopulatePeriod() {
+  let text = `${drawn.social.title}が進む社会。${drawn.chaos.title}という状況の中で、`;
+  text += `人々の「${drawn.value.title}」への意識が高まっている。`;
+  const extras = extraDrivers.map(d => d.title);
+  if (extras.length) text += `\nさらに${extras.join('、')}という変化も重なる。`;
+  document.getElementById('f-period').value = text;
+}
+
+/* ── Previous step summary ── */
+function updatePrevSummary(n) {
+  if (n < 2) return;
+
+  function makeItem(q, a) {
+    if (!a) return '';
+    return `<div class="prev-summary-item">
+      <div class="prev-summary-q">${esc(q)}</div>
+      <div class="prev-summary-a">${esc(a)}</div>
+    </div>`;
+  }
+
+  let html = '';
+
+  // Step 1
+  const s1memo = val('s1-memo');
+  if (s1memo) {
+    html += `<div class="prev-summary-section">
+      <div class="prev-summary-step-label">Step 1 — 世界の前提</div>
+      <div class="prev-summary-a">${esc(s1memo)}</div>
+    </div>`;
+  }
+
+  // Step 2 (for steps 3 and 4)
+  if (n >= 3) {
+    const items = [
+      makeItem('何が「安心」か', val('s2-q1')),
+      makeItem('何が「恥ずかしい・古い」か', val('s2-q2')),
+      makeItem('「豊か」な時間の使い方', val('s2-q3')),
+      makeItem('何を「信用」するか', val('s2-q4')),
+    ].join('');
+    if (items) {
+      html += `<div class="prev-summary-section">
+        <div class="prev-summary-step-label">Step 2 — 価値観の転換</div>
+        ${items}
+      </div>`;
+    }
+  }
+
+  // Step 3 (for step 4)
+  if (n >= 4) {
+    const items = [
+      makeItem('朝起きて最初に何をするか', val('s3-d1')),
+      makeItem('どんな相手と意思決定するか', val('s3-d2')),
+      makeItem('移動・買い物・学習・ケア', val('s3-d3')),
+      makeItem('何を煩わしいと思うか', val('s3-d4')),
+    ].join('');
+    if (items) {
+      html += `<div class="prev-summary-section">
+        <div class="prev-summary-step-label">Step 3 — 日常</div>
+        ${items}
+      </div>`;
+    }
+  }
+
+  const container = document.getElementById(`prev-summary-${n}`);
+  if (!container) return;
+  if (html) {
+    container.innerHTML = `<div class="prev-summary-card">
+      <div class="prev-summary-title">前のステップで書いた内容</div>
+      ${html}
+    </div>`;
+    container.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+  }
+}
+
+/* ── Step navigation ── */
+function showStep(n) {
+  currentStep = n;
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`pane-${i}`).classList.toggle('hidden', i !== n);
+    const ps = document.getElementById(`ps-${i}`);
+    const pd = document.getElementById(`pd-${i}`);
+    if (i < n) {
+      ps.className = 'prog-step done';
+      pd.className = 'prog-dot done';
+    } else if (i === n) {
+      ps.className = 'prog-step active';
+      pd.className = 'prog-dot active';
+    } else {
+      ps.className = 'prog-step';
+      pd.className = 'prog-dot';
+    }
+    if (i < 4) {
+      document.getElementById(`pc-${i}`).classList.toggle('done', i < n);
+    }
+  }
+  updatePrevSummary(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToStep(n) {
+  saveAll();
+  showStep(n);
+}
+
+/* ── Persist data ── */
+function saveAll() {
+  steps.extraDrivers = extraDrivers;
+  steps.step1 = { memo: val('s1-memo') };
+  steps.step2 = { q1: val('s2-q1'), q2: val('s2-q2'), q3: val('s2-q3'), q4: val('s2-q4') };
+  steps.step3 = { d1: val('s3-d1'), d2: val('s3-d2'), d3: val('s3-d3'), d4: val('s3-d4') };
+  steps.step4 = {
+    name: val('f-name'), age: val('f-age'), period: val('f-period'),
+    values: val('f-values'), behaviors: val('f-behaviors'),
+    strange: val('f-strange'), services: val('f-services'),
+  };
+  localStorage.setItem('pg_steps', JSON.stringify(steps));
+  // Firebase sync
+  if (db && roomInfo) {
+    db.collection('rooms').doc(roomInfo.code)
+      .collection('groups').doc(roomInfo.name)
+      .set({ steps, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+      .catch(e => console.warn('Firebase save:', e.message));
+  }
+}
+
+function restoreAll() {
+  if (steps.step1) set('s1-memo', steps.step1.memo);
+  if (steps.step2) {
+    set('s2-q1', steps.step2.q1); set('s2-q2', steps.step2.q2);
+    set('s2-q3', steps.step2.q3); set('s2-q4', steps.step2.q4);
+  }
+  if (steps.step3) {
+    set('s3-d1', steps.step3.d1); set('s3-d2', steps.step3.d2);
+    set('s3-d3', steps.step3.d3); set('s3-d4', steps.step3.d4);
+  }
+  if (steps.step4) {
+    set('f-name', steps.step4.name);   set('f-age', steps.step4.age);
+    set('f-period', steps.step4.period); set('f-values', steps.step4.values);
+    set('f-behaviors', steps.step4.behaviors); set('f-strange', steps.step4.strange);
+    set('f-services', steps.step4.services);
+  }
+}
+
+/* ── Navigate to persona card page ── */
+function goToCard() {
+  saveAll();
+  const proceed = () => { location.href = 'persona-card.html'; };
+  if (db && roomInfo) {
+    db.collection('rooms').doc(roomInfo.code)
+      .collection('groups').doc(roomInfo.name)
+      .set({
+        steps,
+        groupName: roomInfo.name,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true })
+      .then(proceed).catch(proceed);
+  } else {
+    proceed();
+  }
+}
+
+/* ── Helpers ── */
+function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function set(id, v) { const el = document.getElementById(id); if (el && v) el.value = v; }
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ファシリテーター画面 — 未来社会ガチャ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    :root {
+      --bg:           #f8f7f4;
+      --surface:      #ffffff;
+      --accent:       #5c50d6;
+      --accent-light: #ede9ff;
+      --text:         #1a1a1a;
+      --text-sub:     #6b6b6b;
+      --text-muted:   #a0a0a0;
+      --border:       #e8e6e0;
+      --c-social:     #2563eb;
+      --c-social-bg:  #eff6ff;
+      --c-value:      #7c3aed;
+      --c-value-bg:   #f5f3ff;
+      --c-life:       #059669;
+      --c-life-bg:    #ecfdf5;
+      --c-chaos:      #db2777;
+      --c-chaos-bg:   #fdf2f8;
+      --font-serif:   'Shippori Mincho', serif;
+      --font-sans:    'Noto Sans JP', sans-serif;
+    }
+
+    html { -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Site nav ── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1240px; margin: 0 auto; padding: 0 24px;
+      height: 56px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 0.9375rem; color: var(--text);
+      text-decoration: none; letter-spacing: 0.02em;
+    }
+    .nav-link {
+      font-size: 0.8125rem; color: var(--text-sub);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--accent); }
+
+    /* ── Page body ── */
+    .page-body {
+      max-width: 1240px; margin: 0 auto; padding: 40px 24px 80px;
+    }
+
+    /* ── Page header ── */
+    .page-header { text-align: center; margin-bottom: 40px; }
+    .page-header h1 {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 1.5rem; color: var(--text);
+      letter-spacing: 0.04em; margin-bottom: 8px;
+    }
+    .page-desc {
+      font-size: 0.875rem; color: var(--text-sub); line-height: 1.7;
+    }
+
+    /* ── Connect form ── */
+    .connect-section {
+      max-width: 480px; margin: 0 auto 40px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px 28px; text-align: center;
+    }
+    .connect-label {
+      font-size: 0.875rem; color: var(--text-sub);
+      margin-bottom: 20px; line-height: 1.7;
+    }
+    .connect-row {
+      display: flex; gap: 10px; justify-content: center;
+    }
+    .connect-row input {
+      flex: 1; max-width: 200px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: var(--font-sans); font-size: 1rem;
+      font-weight: 700; padding: 10px 14px;
+      letter-spacing: 0.14em; text-transform: uppercase; text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .connect-row input:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    .connect-row input::placeholder {
+      color: var(--text-muted); text-transform: none;
+      letter-spacing: 0.04em; font-weight: 400;
+    }
+    .btn-connect {
+      padding: 10px 24px; background: var(--accent);
+      color: #fff; border: none; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 700; cursor: pointer;
+      font-family: var(--font-sans); transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-connect:hover { background: #4b40c4; transform: translateY(-1px); }
+
+    /* ── Room header ── */
+    .room-header {
+      max-width: 1200px; margin: 0 auto 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px;
+    }
+    .room-header-left { display: flex; align-items: center; gap: 14px; }
+    .live-dot {
+      width: 8px; height: 8px; background: var(--c-life);
+      border-radius: 50%; animation: pulse 2s ease-in-out infinite; flex-shrink: 0;
+    }
+    .room-code-badge {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 1rem; color: var(--accent); letter-spacing: 0.1em;
+    }
+    .group-count { font-size: 0.82rem; color: var(--text-sub); }
+    .btn-disconnect {
+      padding: 6px 16px; background: transparent;
+      border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-sub); font-size: 0.78rem;
+      cursor: pointer; font-family: var(--font-sans); transition: all 0.2s;
+    }
+    .btn-disconnect:hover { border-color: var(--text-sub); color: var(--text); }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-muted); font-size: 0.875rem; line-height: 1.8;
+    }
+
+    /* ── Groups grid ── */
+    .groups-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Group card ── */
+    .group-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden; animation: fadein 0.4s ease;
+    }
+
+    .gc-header {
+      padding: 14px 16px; background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .gc-name {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 1rem; color: var(--text);
+    }
+    .gc-steps { display: flex; gap: 5px; }
+    .gc-step-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--border);
+    }
+    .gc-step-dot.done { background: var(--accent); }
+    .gc-step-dot.all  { background: var(--c-life); }
+
+    .gc-cards {
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+      background: #faf9f7; display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .gc-chip {
+      padding: 3px 10px; border-radius: 14px;
+      font-size: 0.72rem; font-weight: 600; border: 1px solid;
+    }
+    .gc-chip.social {
+      border-color: rgba(37, 99, 235, 0.3); color: var(--c-social);
+      background: var(--c-social-bg);
+    }
+    .gc-chip.value {
+      border-color: rgba(124, 58, 237, 0.3); color: var(--c-value);
+      background: var(--c-value-bg);
+    }
+    .gc-chip.life {
+      border-color: rgba(5, 150, 105, 0.3); color: var(--c-life);
+      background: var(--c-life-bg);
+    }
+    .gc-chip.chaos {
+      border-color: rgba(219, 39, 119, 0.3); color: var(--c-chaos);
+      background: var(--c-chaos-bg);
+    }
+
+    .gc-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    .gc-persona-header { display: flex; align-items: baseline; gap: 8px; }
+    .gc-persona-name {
+      font-family: var(--font-serif); font-weight: 700;
+      font-size: 1rem; color: var(--text);
+    }
+    .gc-persona-age { font-size: 0.78rem; color: var(--text-sub); }
+
+    .gc-field-label {
+      font-size: 0.62rem; color: var(--text-muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      font-weight: 700; margin-bottom: 2px;
+    }
+    .gc-field-value {
+      font-size: 0.82rem; color: var(--text-sub);
+      line-height: 1.6; white-space: pre-wrap;
+    }
+
+    .gc-no-persona {
+      font-size: 0.78rem; color: var(--text-muted);
+      text-align: center; padding: 12px 0; font-style: italic;
+    }
+    .gc-step-label { font-size: 0.72rem; color: var(--text-muted); text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- Site nav -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="top.html" class="nav-logo">未来社会ペルソナガチャ</a>
+    <a href="index.html" class="nav-link">← ガチャページへ</a>
+  </div>
+</nav>
+
+<div class="page-body">
+
+  <div class="page-header">
+    <h1>ファシリテーター画面</h1>
+    <p class="page-desc">ルームコードを入力すると、参加中のグループがリアルタイムで表示されます。</p>
+  </div>
+
+  <!-- Connect form -->
+  <div class="connect-section" id="connect-section">
+    <p class="connect-label">
+      グループに共有するルームコードを入力してください。<br>
+      グループ側が同じコードを入力して参加します。
+    </p>
+    <div class="connect-row">
+      <input type="text" id="admin-code" placeholder="ルームコード" maxlength="8">
+      <button class="btn-connect" onclick="connectRoom()">接続する</button>
+    </div>
+  </div>
+
+  <!-- Room header (shown after connect) -->
+  <div class="room-header" id="room-header" style="display:none">
+    <div class="room-header-left">
+      <div class="live-dot"></div>
+      <div class="room-code-badge" id="room-code-display">—</div>
+      <div class="group-count" id="group-count">接続中…</div>
+    </div>
+    <button class="btn-disconnect" onclick="disconnectRoom()">切断</button>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" id="empty-state" style="display:none">
+    まだグループが参加していません。<br>
+    グループが「<span id="empty-code"></span>」でガチャを引くと、ここに表示されます。
+  </div>
+
+  <!-- Groups grid -->
+  <div class="groups-grid" id="groups-grid"></div>
+
+</div><!-- /page-body -->
+
+<script>
+// ── Firebase init ──
+let db = null;
+try {
+  if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+  }
+} catch(e) { console.warn('Firebase unavailable:', e.message); }
+
+let unsubscribe = null;
+
+document.getElementById('admin-code').addEventListener('input', function() {
+  this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+document.getElementById('admin-code').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') connectRoom();
+});
+
+function connectRoom() {
+  const code = document.getElementById('admin-code').value.trim().toUpperCase();
+  if (!code) { alert('ルームコードを入力してください。'); return; }
+  if (!db) { alert('Firebaseが設定されていません。\nfirebase-config.js を設定してください。'); return; }
+
+  document.getElementById('connect-section').style.display = 'none';
+  document.getElementById('room-header').style.display    = 'flex';
+  document.getElementById('room-code-display').textContent = `ルーム：${code}`;
+
+  unsubscribe = db.collection('rooms').doc(code)
+    .collection('groups')
+    .onSnapshot(snapshot => {
+      const groups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderGroups(groups, code);
+    }, err => {
+      console.error('Firestore error:', err);
+    });
+}
+
+function disconnectRoom() {
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  document.getElementById('connect-section').style.display = 'block';
+  document.getElementById('room-header').style.display    = 'none';
+  document.getElementById('empty-state').style.display    = 'none';
+  document.getElementById('groups-grid').innerHTML = '';
+  document.getElementById('admin-code').value = '';
+}
+
+function renderGroups(groups, code) {
+  const grid  = document.getElementById('groups-grid');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('group-count');
+
+  count.textContent = `${groups.length}グループ参加中`;
+
+  if (groups.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    document.getElementById('empty-code').textContent = code;
+    return;
+  }
+  empty.style.display = 'none';
+
+  // Keep existing cards and update, add new ones
+  const existingIds = new Set([...grid.querySelectorAll('.group-card')].map(el => el.dataset.id));
+  const incomingIds = new Set(groups.map(g => g.id));
+
+  // Remove cards no longer in snapshot
+  grid.querySelectorAll('.group-card').forEach(el => {
+    if (!incomingIds.has(el.dataset.id)) el.remove();
+  });
+
+  // Update or insert
+  groups.forEach(group => {
+    const html = buildGroupCard(group);
+    if (existingIds.has(group.id)) {
+      const existing = grid.querySelector(`[data-id="${CSS.escape(group.id)}"]`);
+      if (existing) existing.outerHTML = html;
+    } else {
+      grid.insertAdjacentHTML('beforeend', html);
+    }
+  });
+}
+
+function stepsDone(steps) {
+  if (!steps) return 0;
+  let done = 0;
+  if (steps.step1 && steps.step1.memo) done++;
+  if (steps.step2 && Object.values(steps.step2).some(v => v)) done++;
+  if (steps.step3 && Object.values(steps.step3).some(v => v)) done++;
+  if (steps.step4 && (steps.step4.name || steps.step4.values || steps.step4.behaviors)) done++;
+  return done;
+}
+
+function buildGroupCard(group) {
+  const { id, drawn, steps, groupName } = group;
+  const name = groupName || id;
+  const done = stepsDone(steps);
+  const allDone = done === 4;
+
+  // Step dots
+  const dots = [1,2,3,4].map(i =>
+    `<div class="gc-step-dot ${i <= done ? (allDone ? 'all' : 'done') : ''}"></div>`
+  ).join('');
+
+  // Drawn card chips
+  let chips = '';
+  if (drawn) {
+    const chipDefs = [
+      { key: 'social', cls: 'social', label: '社会変化' },
+      { key: 'value',  cls: 'value',  label: '価値観' },
+      { key: 'life',   cls: 'life',   label: '生活領域' },
+      { key: 'chaos',  cls: 'chaos',  label: 'カオス' },
+    ];
+    chips = chipDefs.filter(d => drawn[d.key]).map(d =>
+      `<span class="gc-chip ${d.cls}" title="${d.label}">${esc(drawn[d.key].title)}</span>`
+    ).join('');
+  }
+
+  // Persona section (from step4)
+  let personaHTML = '';
+  const s4 = steps && steps.step4;
+  if (s4 && (s4.name || s4.values || s4.behaviors || s4.strange || s4.services)) {
+    const pname = s4.name || '（名前未設定）';
+    const age   = s4.age  || '';
+    personaHTML = `
+      <div class="gc-persona-header">
+        <div class="gc-persona-name">${esc(pname)}</div>
+        ${age ? `<div class="gc-persona-age">${esc(age)}</div>` : ''}
+      </div>
+      ${gcField('価値観', s4.values)}
+      ${gcField('特徴的な行動', s4.behaviors)}
+      ${gcField('理解しにくい点', s4.strange)}
+      ${gcField('必要なサービス', s4.services)}`;
+  } else if (drawn) {
+    const stepLabel = done === 0
+      ? 'ステップ進行中…'
+      : `ステップ ${done}/4 完了`;
+    personaHTML = `<div class="gc-no-persona">${stepLabel}</div>`;
+  } else {
+    personaHTML = `<div class="gc-no-persona">ガチャ待ち…</div>`;
+  }
+
+  return `
+    <div class="group-card" data-id="${esc(id)}">
+      <div class="gc-header">
+        <div class="gc-name">${esc(name)}</div>
+        <div class="gc-steps" title="完了ステップ">${dots}</div>
+      </div>
+      ${chips ? `<div class="gc-cards">${chips}</div>` : ''}
+      <div class="gc-body">${personaHTML}</div>
+    </div>`;
+}
+
+function gcField(label, value) {
+  if (!value) return '';
+  return `<div>
+    <div class="gc-field-label">${label}</div>
+    <div class="gc-field-value">${esc(value)}</div>
+  </div>`;
+}
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

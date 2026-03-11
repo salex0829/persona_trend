@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init && git add . && git commit -m \"Add previous step summary to steps.html\" && git branch -M main && git remote add origin https://github.com/salex0829/persona_trend.git && git push -u origin main 2>&1)"
+    ]
+  }
+}
