@@ -285,7 +285,7 @@
       box-shadow: 0 8px 28px rgba(92, 80, 214, 0.35);
     }
 
-    /* ── Discussion memo ── */
+    /* ── Discussion memo (voice) ── */
     .discussion-wrap {
       margin-bottom: 28px;
       padding: 20px 24px;
@@ -296,11 +296,51 @@
     .discussion-label {
       font-size: 0.7rem; font-weight: 700;
       letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--text-muted); margin-bottom: 8px;
+      color: var(--text-muted); margin-bottom: 12px;
       display: flex; align-items: center; gap: 6px;
     }
     .discussion-label::before {
-      content: '💬'; font-size: 0.85rem;
+      content: '🎙'; font-size: 0.85rem;
+    }
+    .voice-controls {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 10px;
+    }
+    .btn-record {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 20px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 20px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: var(--font-sans);
+      color: var(--text-sub); white-space: nowrap;
+    }
+    .btn-record:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-record.recording {
+      background: #fef2f2; border-color: #ef4444; color: #ef4444;
+    }
+    .btn-record .rec-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0;
+    }
+    .btn-record.recording .rec-dot {
+      animation: blink 1s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+    .record-status {
+      font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.04em;
+    }
+    .record-status.active { color: #ef4444; }
+    .voice-interim {
+      font-size: 0.82rem; color: var(--text-muted);
+      line-height: 1.65; min-height: 1.4em;
+      font-style: italic; margin-bottom: 6px;
+    }
+    .voice-unsupported {
+      font-size: 0.75rem; color: var(--text-muted);
+      margin-bottom: 8px; display: none;
     }
 
     /* ── Previous step summary ── */
@@ -420,9 +460,17 @@
   </div>
 
   <div class="discussion-wrap">
-    <div class="discussion-label">ディスカッションメモ</div>
+    <div class="discussion-label">ディスカッションメモ（音声書き起こし）</div>
+    <p class="voice-unsupported" id="s1-unsupported">※ このブラウザは音声認識に対応していません。テキストを直接入力してください。</p>
+    <div class="voice-controls">
+      <button class="btn-record" id="s1-record-btn" onclick="toggleRecord('s1')">
+        <span class="rec-dot"></span>録音開始
+      </button>
+      <span class="record-status" id="s1-record-status"></span>
+    </div>
+    <p class="voice-interim" id="s1-interim"></p>
     <textarea id="s1-discuss" rows="4"
-      placeholder="グループで話し合った内容・気づき・意見の違いなどを自由にメモしてください。"></textarea>
+      placeholder="録音した内容がここに表示されます。直接編集することもできます。"></textarea>
   </div>
 
   <div class="pane-nav">
@@ -494,9 +542,17 @@
   </div>
 
   <div class="discussion-wrap">
-    <div class="discussion-label">ディスカッションメモ</div>
+    <div class="discussion-label">ディスカッションメモ（音声書き起こし）</div>
+    <p class="voice-unsupported" id="s2-unsupported">※ このブラウザは音声認識に対応していません。テキストを直接入力してください。</p>
+    <div class="voice-controls">
+      <button class="btn-record" id="s2-record-btn" onclick="toggleRecord('s2')">
+        <span class="rec-dot"></span>録音開始
+      </button>
+      <span class="record-status" id="s2-record-status"></span>
+    </div>
+    <p class="voice-interim" id="s2-interim"></p>
     <textarea id="s2-discuss" rows="4"
-      placeholder="グループで話し合った内容・気づき・意見の違いなどを自由にメモしてください。"></textarea>
+      placeholder="録音した内容がここに表示されます。直接編集することもできます。"></textarea>
   </div>
 
   <div class="pane-nav">
@@ -577,9 +633,17 @@
   </div>
 
   <div class="discussion-wrap">
-    <div class="discussion-label">ディスカッションメモ</div>
+    <div class="discussion-label">ディスカッションメモ（音声書き起こし）</div>
+    <p class="voice-unsupported" id="s3-unsupported">※ このブラウザは音声認識に対応していません。テキストを直接入力してください。</p>
+    <div class="voice-controls">
+      <button class="btn-record" id="s3-record-btn" onclick="toggleRecord('s3')">
+        <span class="rec-dot"></span>録音開始
+      </button>
+      <span class="record-status" id="s3-record-status"></span>
+    </div>
+    <p class="voice-interim" id="s3-interim"></p>
     <textarea id="s3-discuss" rows="4"
-      placeholder="グループで話し合った内容・気づき・意見の違いなどを自由にメモしてください。"></textarea>
+      placeholder="録音した内容がここに表示されます。直接編集することもできます。"></textarea>
   </div>
 
   <div class="pane-nav">
@@ -671,9 +735,17 @@
   </div>
 
   <div class="discussion-wrap">
-    <div class="discussion-label">ディスカッションメモ</div>
+    <div class="discussion-label">ディスカッションメモ（音声書き起こし）</div>
+    <p class="voice-unsupported" id="s4-unsupported">※ このブラウザは音声認識に対応していません。テキストを直接入力してください。</p>
+    <div class="voice-controls">
+      <button class="btn-record" id="s4-record-btn" onclick="toggleRecord('s4')">
+        <span class="rec-dot"></span>録音開始
+      </button>
+      <span class="record-status" id="s4-record-status"></span>
+    </div>
+    <p class="voice-interim" id="s4-interim"></p>
     <textarea id="s4-discuss" rows="4"
-      placeholder="グループで話し合った内容・気づき・意見の違いなどを自由にメモしてください。"></textarea>
+      placeholder="録音した内容がここに表示されます。直接編集することもできます。"></textarea>
   </div>
 
   <div class="pane-nav">
@@ -948,6 +1020,95 @@ function goToCard() {
       .then(proceed).catch(proceed);
   } else {
     proceed();
+  }
+}
+
+/* ── Voice transcription ── */
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recorders = {};
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (!SpeechRecognition) {
+    ['s1','s2','s3','s4'].forEach(id => {
+      const el = document.getElementById(`${id}-unsupported`);
+      const btn = document.getElementById(`${id}-record-btn`);
+      if (el) el.style.display = 'block';
+      if (btn) btn.style.display = 'none';
+    });
+  }
+}, { once: false });  // runs after the existing DOMContentLoaded
+
+function toggleRecord(stepId) {
+  if (recorders[stepId]) {
+    stopRecord(stepId);
+  } else {
+    startRecord(stepId);
+  }
+}
+
+function startRecord(stepId) {
+  if (!SpeechRecognition) return;
+  const rec = new SpeechRecognition();
+  rec.lang = 'ja-JP';
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  const textarea = document.getElementById(`${stepId}-discuss`);
+  const interim  = document.getElementById(`${stepId}-interim`);
+  let finalText  = textarea.value;
+
+  rec.onresult = (e) => {
+    let interimText = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        finalText += e.results[i][0].transcript;
+        textarea.value = finalText;
+      } else {
+        interimText += e.results[i][0].transcript;
+      }
+    }
+    if (interim) interim.textContent = interimText;
+  };
+
+  rec.onerror = (e) => {
+    console.warn('Speech error:', e.error);
+    stopRecord(stepId);
+  };
+
+  rec.onend = () => {
+    // 録音継続中なら自動再起動（ブラウザが勝手に止める対策）
+    if (recorders[stepId]) {
+      try { rec.start(); } catch(_) { stopRecord(stepId); }
+    }
+  };
+
+  rec.start();
+  recorders[stepId] = rec;
+  setRecordUI(stepId, true);
+}
+
+function stopRecord(stepId) {
+  if (recorders[stepId]) {
+    recorders[stepId].onend = null;
+    recorders[stepId].stop();
+    recorders[stepId] = null;
+  }
+  const interim = document.getElementById(`${stepId}-interim`);
+  if (interim) interim.textContent = '';
+  setRecordUI(stepId, false);
+}
+
+function setRecordUI(stepId, isRecording) {
+  const btn    = document.getElementById(`${stepId}-record-btn`);
+  const status = document.getElementById(`${stepId}-record-status`);
+  if (btn) {
+    btn.classList.toggle('recording', isRecording);
+    btn.querySelector('.rec-dot').style.display = 'block';
+    btn.childNodes[btn.childNodes.length - 1].textContent = isRecording ? '録音停止' : '録音開始';
+  }
+  if (status) {
+    status.textContent = isRecording ? '録音中...' : '';
+    status.classList.toggle('active', isRecording);
   }
 }
 
