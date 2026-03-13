@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>トレンドを引く — 未来社会ペルソナガチャ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --surface: #ffffff;
+      --border: #e8e4f0;
+      --text: #1e1c2e;
+      --text-sub: #68657e;
+      --text-muted: #b2afc8;
+      --accent: #5c50d6;
+      --accent-hover: #4a3fc4;
+      --accent-light: #ede9fb;
+
+      --mega: #c2410c;
+      --mega-light: #fff7ed;
+      --mega-border: #fed7aa;
+      --mega-label: #ea580c;
+
+      --mid: #0369a1;
+      --mid-light: #f0f9ff;
+      --mid-border: #bae6fd;
+      --mid-label: #0284c7;
+
+      --principle-bg: #f9f8ff;
+      --principle-border: #e0dcf8;
+      --principle-text: #4c4680;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    .site-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 32px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 0.85rem; font-weight: 700;
+      color: var(--text); text-decoration: none; letter-spacing: 0.1em;
+    }
+    .nav-right { display: flex; gap: 20px; align-items: center; }
+    .nav-link {
+      font-size: 0.75rem; color: var(--text-muted); text-decoration: none;
+      letter-spacing: 0.04em; transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--accent); }
+
+    /* ── Page header ── */
+    .page-header {
+      text-align: center;
+      padding: 44px 20px 32px;
+    }
+    .page-step {
+      display: inline-block;
+      font-size: 0.62rem; letter-spacing: 0.18em; font-weight: 700;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-light);
+      padding: 4px 14px; border-radius: 100px; margin-bottom: 18px;
+    }
+    h1 {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 1.55rem; font-weight: 700;
+      letter-spacing: 0.1em; margin-bottom: 8px;
+      color: var(--text);
+    }
+    .subtitle {
+      font-size: 0.84rem; color: var(--text-sub);
+      letter-spacing: 0.04em; font-weight: 300; line-height: 1.7;
+    }
+
+    /* ── Main grid ── */
+    .trends-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto 28px;
+      padding: 0 20px;
+    }
+    @media (max-width: 640px) { .trends-grid { grid-template-columns: 1fr; } }
+
+    /* ── Trend panel ── */
+    .trend-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex; flex-direction: column; gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .trend-panel.rolling {
+      animation: panelGlow 0.5s ease-in-out infinite alternate;
+    }
+    .trend-panel.mega { border-top: 3px solid var(--mega); }
+    .trend-panel.mid  { border-top: 3px solid var(--mid); }
+
+    @keyframes panelGlow {
+      from { box-shadow: 0 0 8px rgba(92,80,214,0.12); }
+      to   { box-shadow: 0 0 28px rgba(92,80,214,0.32); }
+    }
+
+    /* Panel header */
+    .panel-header { display: flex; align-items: center; gap: 12px; }
+    .panel-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .mega .panel-icon { background: var(--mega-light); }
+    .mid  .panel-icon { background: var(--mid-light); }
+    .panel-type {
+      font-size: 0.6rem; letter-spacing: 0.16em;
+      font-weight: 700; text-transform: uppercase; margin-bottom: 2px;
+    }
+    .mega .panel-type { color: var(--mega-label); }
+    .mid  .panel-type { color: var(--mid-label); }
+    .panel-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+
+    /* Card display */
+    .card-display {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex; flex-direction: column; gap: 8px;
+      min-height: 108px;
+      justify-content: center;
+    }
+    .card-empty {
+      color: var(--text-muted); font-size: 0.8rem;
+      text-align: center; letter-spacing: 0.06em;
+    }
+    .card-num {
+      font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.1em;
+    }
+    .card-title {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 1.05rem; font-weight: 700; line-height: 1.5; color: var(--text);
+    }
+    .card-desc {
+      font-size: 0.78rem; color: var(--text-sub); line-height: 1.65;
+    }
+    .card-reveal {
+      animation: reveal 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(6px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Principle block */
+    .principle-block {
+      background: var(--principle-bg);
+      border: 1px solid var(--principle-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: none; flex-direction: column; gap: 4px;
+    }
+    .principle-block.visible { display: flex; }
+    .principle-label {
+      font-size: 0.58rem; letter-spacing: 0.16em; font-weight: 700;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .principle-text {
+      font-size: 0.8rem; color: var(--principle-text);
+      font-weight: 500; line-height: 1.55; letter-spacing: 0.02em;
+    }
+
+    /* Roll button */
+    .btn-roll {
+      width: 100%; padding: 10px 0;
+      border-radius: 7px; border: 1.5px solid;
+      background: transparent;
+      font-size: 0.84rem; font-weight: 600; letter-spacing: 0.06em;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .btn-roll:active { transform: scale(0.97); }
+    .btn-roll:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .mega .btn-roll { border-color: var(--mega-border); color: var(--mega); background: var(--mega-light); }
+    .mega .btn-roll:hover { background: var(--mega); color: #fff; border-color: var(--mega); }
+    .mid  .btn-roll { border-color: var(--mid-border);  color: var(--mid);  background: var(--mid-light);  }
+    .mid  .btn-roll:hover { background: var(--mid); color: #fff; border-color: var(--mid); }
+
+    /* Roll-all button */
+    .roll-all-wrap { text-align: center; margin-bottom: 28px; }
+    .btn-all {
+      padding: 13px 44px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 40px;
+      font-size: 0.95rem; font-weight: 700; letter-spacing: 0.08em;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+      box-shadow: 0 4px 16px rgba(92,80,214,0.24);
+    }
+    .btn-all:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(92,80,214,0.36); }
+    .btn-all:active { transform: scale(0.97); }
+
+    /* Summary & next */
+    .summary-panel {
+      max-width: 900px; margin: 0 auto 24px; padding: 0 20px;
+      display: none;
+    }
+    .summary-panel.visible { display: block; }
+    .summary-inner {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .summary-title {
+      font-size: 0.62rem; letter-spacing: 0.18em;
+      color: var(--text-muted); font-weight: 700;
+      text-transform: uppercase; margin-bottom: 16px;
+    }
+    .summary-row {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    }
+    @media (max-width: 640px) { .summary-row { grid-template-columns: 1fr; } }
+    .summary-item {
+      background: var(--bg); border-radius: 8px; padding: 14px 16px;
+    }
+    .summary-type {
+      font-size: 0.6rem; letter-spacing: 0.14em; font-weight: 700;
+      text-transform: uppercase; margin-bottom: 4px;
+    }
+    .summary-item.mega .summary-type { color: var(--mega-label); }
+    .summary-item.mid  .summary-type { color: var(--mid-label); }
+    .summary-item-title {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 0.95rem; font-weight: 700; color: var(--text);
+      margin-bottom: 3px;
+    }
+    .summary-item-desc { font-size: 0.74rem; color: var(--text-sub); line-height: 1.55; }
+    .summary-item-principle {
+      margin-top: 8px; padding-top: 8px;
+      border-top: 1px solid var(--principle-border);
+      font-size: 0.72rem; color: var(--principle-text); line-height: 1.5;
+    }
+    .summary-item-principle::before {
+      content: "行動原理 ▸ ";
+      font-size: 0.6rem; letter-spacing: 0.1em; font-weight: 700;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+
+    .next-wrap {
+      text-align: center; margin-bottom: 48px;
+      display: none; animation: reveal 0.5s ease;
+    }
+    .next-wrap.visible { display: block; }
+    .next-hint { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 14px; }
+    .btn-next {
+      padding: 14px 52px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 40px;
+      font-size: 0.95rem; font-weight: 700; letter-spacing: 0.08em;
+      cursor: pointer; transition: all 0.25s; font-family: inherit;
+      box-shadow: 0 4px 20px rgba(92,80,214,0.28);
+    }
+    .btn-next:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(92,80,214,0.40); }
+
+    /* Room bar (same as index.html) */
+    .room-section { max-width: 900px; margin: 0 auto 24px; padding: 0 20px; }
+    .room-toggle-btn {
+      width: 100%; text-align: left; padding: 10px 16px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text-sub); font-size: 0.78rem; font-family: inherit; cursor: pointer;
+      letter-spacing: 0.04em; transition: all 0.2s;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .room-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .room-toggle-btn.open { border-color: var(--accent); color: var(--accent); border-radius: 10px 10px 0 0; }
+    .room-form-inner {
+      background: var(--surface); border: 1px solid var(--accent); border-top: none;
+      border-radius: 0 0 10px 10px; padding: 14px 16px;
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .room-form-inner input {
+      flex: 1; min-width: 110px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); font-family: inherit; font-size: 0.82rem; padding: 8px 12px;
+    }
+    .room-form-inner input::placeholder { color: var(--text-muted); }
+    .room-form-inner input:focus { outline: none; border-color: var(--accent); }
+    .btn-room-join {
+      padding: 8px 20px; background: var(--accent); color: #fff; border: none;
+      border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; white-space: nowrap; transition: background 0.2s;
+    }
+    .btn-room-join:hover { background: var(--accent-hover); }
+    .room-status-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 16px; background: #f0fdf4; border: 1px solid #a7f3d0;
+      border-radius: 10px; font-size: 0.78rem; color: #065f46; letter-spacing: 0.04em;
+    }
+    .btn-room-leave {
+      padding: 3px 10px; background: transparent; border: 1px solid #a7f3d0;
+      border-radius: 4px; color: #059669; font-size: 0.72rem; cursor: pointer;
+      font-family: inherit; transition: all 0.2s;
+    }
+    .btn-room-leave:hover { background: #dcfce7; }
+
+    footer {
+      text-align: center; font-size: 0.72rem;
+      color: var(--text-muted); padding: 24px 0 16px;
+      border-top: 1px solid var(--border); margin-top: 8px;
+    }
+    footer a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="top.html" class="nav-logo">未来社会ペルソナガチャ</a>
+  <div class="nav-right">
+    <a href="top.html" class="nav-link">トップ</a>
+    <a href="admin.html" class="nav-link">ファシリテーター画面</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-step">Step 0 of 5 — Context</div>
+  <h1>トレンドを引く</h1>
+  <p class="subtitle">
+    2つのトレンドが、これから生まれるペルソナが生きる世界の文脈をつくる。<br>
+    メガトレンドは社会構造の変化、ミドルトレンドはそれに伴う技術的変化。
+  </p>
+</div>
+
+<!-- Room -->
+<div class="room-section">
+  <div id="room-entry">
+    <button class="room-toggle-btn" id="room-toggle" onclick="toggleRoomForm()">
+      <span>🏫 ワークショップモードで使う（複数グループ同時進行）</span>
+      <span id="room-arrow">▼</span>
+    </button>
+    <div class="room-form-inner" id="room-form-inner" style="display:none">
+      <input type="text" id="inp-room"  placeholder="ルームコード（例：ABCD）" maxlength="8">
+      <input type="text" id="inp-group" placeholder="グループ名（例：グループA）">
+      <button class="btn-room-join" onclick="joinRoom()">参加する</button>
+    </div>
+  </div>
+  <div class="room-status-bar" id="room-status-bar" style="display:none">
+    <span id="room-status-text">—</span>
+    <button class="btn-room-leave" onclick="leaveRoom()">退出</button>
+  </div>
+</div>
+
+<!-- Roll all -->
+<div class="roll-all-wrap">
+  <button class="btn-all" onclick="rollAll()">両方を引く</button>
+</div>
+
+<!-- Trend panels -->
+<div class="trends-grid">
+
+  <!-- Mega-trend -->
+  <div class="trend-panel mega" id="panel-mega">
+    <div class="panel-header">
+      <div class="panel-icon">🌍</div>
+      <div>
+        <div class="panel-type">Mega Trend</div>
+        <div class="panel-name">メガトレンド</div>
+      </div>
+    </div>
+    <div class="card-display" id="display-mega">
+      <div class="card-empty">— カードを引いてください —</div>
+    </div>
+    <div class="principle-block" id="principle-mega">
+      <div class="principle-label">Universal Principle</div>
+      <div class="principle-text" id="principle-mega-text"></div>
+    </div>
+    <button class="btn-roll" onclick="roll('mega')">引く</button>
+  </div>
+
+  <!-- Middle-trend -->
+  <div class="trend-panel mid" id="panel-mid">
+    <div class="panel-header">
+      <div class="panel-icon">⚙️</div>
+      <div>
+        <div class="panel-type">Middle Trend</div>
+        <div class="panel-name">ミドルトレンド</div>
+      </div>
+    </div>
+    <div class="card-display" id="display-mid">
+      <div class="card-empty">— カードを引いてください —</div>
+    </div>
+    <div class="principle-block" id="principle-mid">
+      <div class="principle-label">Universal Principle</div>
+      <div class="principle-text" id="principle-mid-text"></div>
+    </div>
+    <button class="btn-roll" onclick="roll('mid')">引く</button>
+  </div>
+
+</div>
+
+<!-- Summary -->
+<div class="summary-panel" id="summary">
+  <div class="summary-inner">
+    <div class="summary-title">引いた2枚</div>
+    <div class="summary-row" id="summary-row"></div>
+  </div>
+</div>
+
+<!-- Next -->
+<div class="next-wrap" id="next-wrap">
+  <p class="next-hint">2つのトレンドが揃いました。次はペルソナのカードを引きましょう。</p>
+  <button class="btn-next" onclick="goToGacha()">ガチャを引きに行く →</button>
+</div>
+
+<footer>
+  未来社会ペルソナガチャ &nbsp;·&nbsp;
+  <a href="top.html">トップ</a> &nbsp;·&nbsp;
+  <a href="admin.html">ファシリテーター画面</a>
+</footer>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────
+const TRENDS = {
+  mega: [
+    {
+      title: "人口減少と超高齢化社会",
+      desc: "多くの先進国で人口が減少しつつ、65歳以上が社会の主役になる。労働・医療・財政の前提がすべて変わる。",
+      principle: "人は意味と役割を求め続ける——年齢を重ねても「自分が必要とされている」という感覚を失いたくない。"
+    },
+    {
+      title: "気候変動と生態系崩壊",
+      desc: "温暖化・海面上昇・生物多様性の喪失が不可逆的に進み、居住可能な地域と食料生産の地図が塗り替わる。",
+      principle: "人は目の前の利益を遠い将来より優先する——今の便益と未来のリスクのトレードオフを合理的に解けない。"
+    },
+    {
+      title: "AIによる知的労働の自動化",
+      desc: "文章・コード・判断・創造の大半がAIで代替可能になり、人間の「考える仕事」の定義が根本から変わる。",
+      principle: "人は自らの価値と存在意義を証明したがる——機械に負けていない部分を探し続け、そこに自己を賭ける。"
+    },
+    {
+      title: "地政学的多極化と国家間競争",
+      desc: "米・中・欧・新興国が独自の技術・通貨・標準を持ち、グローバルな共通ルールが機能しにくくなる。",
+      principle: "人は内集団を守るために外集団を脅威と見なす——「私たち」と「彼ら」の境界が安心の源になる。"
+    },
+    {
+      title: "デジタル・物理空間の融合",
+      desc: "現実の街・職場・身体にデジタル情報が重なり合い、「どこにいるか」と「何をするか」が分離していく。",
+      principle: "人は慣れ親しんだ環境に安心感を求める——変化が速すぎると、どこかに「アンカー」を探す。"
+    },
+    {
+      title: "エネルギー転換（脱炭素化）",
+      desc: "化石燃料から再生可能エネルギーへの移行が加速し、エネルギーの生産・消費・所有の構造が変わる。",
+      principle: "人は現状維持を好み、変化にコストを感じる——利益より損失を2倍大きく知覚する損失回避が変革を遅らせる。"
+    },
+    {
+      title: "民主主義の危機と権威主義の台頭",
+      desc: "情報操作・格差・制度疲弊により民主的な選択が歪み、強いリーダーへの依存が各国で強まっている。",
+      principle: "人は不確実な自由より、確実な秩序を選ぶことがある——不安が高まると予測可能性を与える権威に引き寄せられる。"
+    },
+    {
+      title: "グローバルサプライチェーンの再編",
+      desc: "感染症・戦争・規制強化により、地球一周する生産網が地域圏内に縮小・多様化していく。",
+      principle: "人は希少なものを過大評価する——手に入りにくくなると、以前は気にしなかった物の価値が急上昇する。"
+    },
+    {
+      title: "生物多様性の喪失と食料安全保障",
+      desc: "農業・漁業の生産基盤が揺らぎ、何を、どこで、どう食べるかが個人・国家の選択として問われる時代になる。",
+      principle: "人は失ってから価値に気づく——豊かさの中では感じにくかった「ある」ことの意味が、欠乏で初めて見える。"
+    },
+    {
+      title: "個人情報の収集と主権争い",
+      desc: "行動・感情・身体データが常時取得され、それを誰が持ち誰が使うかをめぐる個人と企業・国家の摩擦が続く。",
+      principle: "人はプライバシーを守りつつ承認も求める——見られたくないという欲求と、見てほしいという欲求が共存する。"
+    },
+    {
+      title: "格差の拡大と中間層の空洞化",
+      desc: "資産・教育・機会の偏りが世代を超えて固定化し、上位と下位の間を行き来できる「中間」が薄くなる。",
+      principle: "人は不公平を敏感に感じ、是正を求める——自分より不当に得をしている者がいると判断すると、合理性を超えて動く。"
+    },
+    {
+      title: "都市集中と地方消滅",
+      desc: "人・仕事・資本が大都市に集まり、多くの地方では社会インフラの維持が困難になっていく。",
+      principle: "人は機会と帰属感のバランスを求める——都市の豊かさを求めつつ、根っこへの郷愁を手放せない。"
+    },
+    {
+      title: "宗教・スピリチュアリティの再興",
+      desc: "科学や経済成長への信頼が揺らぐ中で、意味・癒し・共同体を宗教やスピリチュアルな実践に求める人が増える。",
+      principle: "人は説明できない不安に意味を与えたがる——偶然や理不尽を「意味のある出来事」として解釈し、不安を和らげる。"
+    },
+    {
+      title: "家族形態の多様化と少子化の加速",
+      desc: "単身・非婚・同性カップル・再構成家族など多様な形態が標準となり、少子化が先進国で構造化する。",
+      principle: "人は愛着と安全基地を必要とする——形が変わっても「無条件に戻れる場所」を誰かとの関係の中に求める。"
+    },
+    {
+      title: "国民国家の機能低下とグローバルガバナンスの再編",
+      desc: "気候・感染症・AI規制など国境を超える問題に、国家単位での対処が追いつかなくなっている。",
+      principle: "人は信頼できる権威に依存したがる——ルールの根拠が不明瞭になると、何かを「頼れる存在」として位置づけ直す。"
+    },
+    {
+      title: "健康寿命の延伸と老後の再定義",
+      desc: "医学の進歩で人生100年が現実になり、「老後」「引退」「世代交代」という概念が書き換えられる。",
+      principle: "人は老いと死を回避しようとする——健康寿命への投資は、死への恐怖という深層動機と表裏一体にある。"
+    },
+    {
+      title: "移民・難民の増加と多文化共生の摩擦",
+      desc: "気候・経済・紛争を背景に越境移動が増し、文化的・言語的に異なる集団が同じ地域で生活する場面が増える。",
+      principle: "人は異質なものに脅威を感じると同時に好奇心も持つ——接触の量と質によって、どちらが勝るかが決まる。"
+    },
+    {
+      title: "情報空間の分断とフィルターバブルの深化",
+      desc: "アルゴリズムが好みに合う情報だけを届けることで、同じ社会に住んでいても異なる「現実」が並立する。",
+      principle: "人は自分の信念を確認する情報を好む——反証より確証を求め、不快な情報を無意識に遮断する。"
+    },
+    {
+      title: "消費社会の終焉とシェアリング・循環経済",
+      desc: "所有より利用、新品より再生、消費より体験へと価値軸がシフトし、大量生産・大量廃棄のモデルが崩れる。",
+      principle: "人はモノではなく体験と物語を記憶する——何を持ったかより何をしたかの方が、後の幸福感に影響する。"
+    },
+    {
+      title: "精神疾患と孤独の社会問題化",
+      desc: "うつ・不安障害・孤独死が先進国で急増し、精神的な健康が個人の問題を超えた社会インフラ課題になる。",
+      principle: "人はつながりの中でしか自己を確認できない——鏡としての他者がいなければ、自分が「ある」感覚が薄れていく。"
+    }
+  ],
+
+  mid: [
+    {
+      title: "汎用AIアシスタントの日常浸透",
+      desc: "会話・検索・創作・意思決定を手伝うAIが、スマートフォンと同じように生活インフラの一部になる。",
+      principle: "人は楽をしたい一方で自律性を失うことを恐れる——便利さと主体性のせめぎ合いが新しい摩擦を生む。"
+    },
+    {
+      title: "空間コンピューティング（AR/VR/MR）の普及",
+      desc: "眼鏡型デバイスが現実の視野に情報を重ね、仕事・学習・遊びの「場所」の概念が変わる。",
+      principle: "人は現実と幻想の境界で新たな意味を見出す——どこまでが「本当」かを問い続けることが、経験を豊かにする。"
+    },
+    {
+      title: "バイオテクノロジーによる身体改造と設計",
+      desc: "ゲノム編集・再生医療・義体化技術が進み、病気の治療を超えて人体の性能を設計できる時代が来る。",
+      principle: "人は自らの身体に強い同一性を感じる——外見や能力を変えることは、「自分とは誰か」という問いと不可分になる。"
+    },
+    {
+      title: "ブロックチェーンと分散型自律組織（DAO）",
+      desc: "中央管理者なしに契約・投票・資産移転ができる仕組みが、新しい経済・政治参加の単位を作り出す。",
+      principle: "人は信頼できる第三者を必要としながら中間者を嫌う——仲介の透明化は支持されるが、完全な分権に不安も感じる。"
+    },
+    {
+      title: "自律走行と次世代モビリティの普及",
+      desc: "車・配送・物流が自動化され、移動にかかる時間と費用の構造が変わり、都市設計も見直される。",
+      principle: "人は移動の自由に象徴的な意味を見出す——ハンドルを握る行為には、単なる移動を超えた自律の感覚が宿っている。"
+    },
+    {
+      title: "感情認識AIと人間の内面への介入",
+      desc: "カメラ・センサー・音声解析でリアルタイムに感情が読まれ、広告・教育・医療に活用される。",
+      principle: "人は感情を読まれることを脅威と感じる——自分でコントロールしたい内面が可視化されると、防衛反応が起きる。"
+    },
+    {
+      title: "ロボティクスによる物理労働の代替",
+      desc: "製造・農業・物流・医療補助など、身体を使う作業の多くをロボットが担うようになる。",
+      principle: "人は手を使い身体で学ぶことに尊厳を感じる——「作る・動かす・触れる」という行為には、言語化しにくい価値がある。"
+    },
+    {
+      title: "デジタルツインと仮想シミュレーションの活用",
+      desc: "都市・工場・人体のデジタルコピーを使って政策決定や医療計画を事前検証するインフラが整う。",
+      principle: "人は仮想体験から現実の判断を変える——シミュレーションで「試した」感覚が、現実のリスク評価を歪めることがある。"
+    },
+    {
+      title: "神経インターフェース（BMI）の実用化",
+      desc: "脳と機械を直接つなぐデバイスが、障害支援を超えて思考・感覚・記憶の拡張ツールとして広がる。",
+      principle: "人は思考と行動の間に意思の余地を必要とする——脳から直接出力されるとき、「自分が選んだ」という感覚はどこへ行くのか。"
+    },
+    {
+      title: "パーソナライズド医療とゲノム解析の大衆化",
+      desc: "個人の遺伝情報・生活データをもとに、予防・治療・薬が一人ひとりに最適化された形で提供される。",
+      principle: "人は自分だけの特別な扱いを喜ぶ——「あなたのために」という言葉は、標準化されたサービスより深く響く。"
+    },
+    {
+      title: "分散型再生可能エネルギーと電力民主化",
+      desc: "太陽光・蓄電池・スマートグリッドの組み合わせで、個人・地域が独自にエネルギーを持てるようになる。",
+      principle: "人は自給自足に独立の象徴を見る——電気や食料を自ら作ることは、経済合理性を超えた自律の感覚を与える。"
+    },
+    {
+      title: "音声・自然言語インターフェースの主流化",
+      desc: "キーボードやタッチ画面を超えて、話しかけるだけで機械・サービスを動かせる環境が標準になる。",
+      principle: "人は言葉で語ることで自分の考えを整理する——声に出すという行為が、思考を明確化する認知プロセスを支える。"
+    },
+    {
+      title: "データ経済と個人情報の商品化",
+      desc: "行動・位置・購買・健康データが価値を持つ資源として流通し、それをめぐる利権と規制の争いが続く。",
+      principle: "人は無料のものに潜むコストを見えにくくする——対価がお金でない取引では、失っているものの大きさを感知しにくい。"
+    },
+    {
+      title: "3Dプリンティングによる製造の民主化",
+      desc: "設計データがあれば誰でも部品・食品・住宅素材を出力できるようになり、生産の「場所」が変わる。",
+      principle: "人は自ら作ったものに特別な愛着を感じる——「イケア効果」と呼ばれるこの傾向は、自作の価値を過大評価させる。"
+    },
+    {
+      title: "マイクロバイオームと腸内環境の健康管理",
+      desc: "腸内細菌と心身の状態の関連が解明され、食事・薬・メンタルへのアプローチが個別化される。",
+      principle: "人は見えない脅威に対して過剰に反応する——目に見えない菌・ウイルス・化学物質は、リスクを実際より大きく感じさせる。"
+    },
+    {
+      title: "ソーシャルVRとデジタル居住空間",
+      desc: "仮想空間の中に「住む・集まる・働く」ための場が作られ、アバターとしての社会参加が現実と並行する。",
+      principle: "人は場所に記憶と感情を結びつける——物理的な空間がなくても、繰り返し訪れる「場所」は感情の拠点になる。"
+    },
+    {
+      title: "物流・配送の完全自動化",
+      desc: "ドローン・自律搬送ロボット・倉庫AI により、注文から届けるまでの全プロセスから人手が消えていく。",
+      principle: "人は手渡しに人格と信頼を感じる——自動化された配送の便利さと引き換えに、「誰かが届けてくれた」という感覚が薄れる。"
+    },
+    {
+      title: "量子コンピューティングの実用化",
+      desc: "特定の計算処理でクラシックPCを凌駕する量子機械が、創薬・暗号・材料開発の分野を変え始める。",
+      principle: "人は複雑さの向こうに単純な答えがあると信じる——圧倒的な計算力は、「すべての問題は解けるはず」という幻想を強める。"
+    },
+    {
+      title: "監視資本主義とアルゴリズムによる行動予測",
+      desc: "プラットフォームが個人の行動を先読みして誘導することで、選択の自由と実際の行動がズレていく。",
+      principle: "人は見られていると分かると行動を変える——観察されているという認識が、「本来の行動」を歪める。"
+    },
+    {
+      title: "スマート農業と代替タンパク質の台頭",
+      desc: "センサー・AI・垂直農場が農業を工業化し、昆虫・藻・培養肉が食料危機への答えとして普及し始める。",
+      principle: "人は食の起源と物語を求める——栄養価より「誰が・どこで・どうやって作ったか」という文脈が、食の価値を決める。"
+    }
+  ]
+};
+
+// ── Firebase & Room ─────────────────────────────────────────────────
+let db = null;
+try {
+  if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+  }
+} catch(e) { console.warn('Firebase unavailable:', e.message); }
+
+let roomInfo = JSON.parse(sessionStorage.getItem('pg_room') || 'null');
+const sessionId = Math.random().toString(36).slice(2, 10);
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (roomInfo) showRoomStatus();
+  const inp = document.getElementById('inp-room');
+  if (inp) inp.addEventListener('input', function() {
+    this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  });
+});
+
+function toggleRoomForm() {
+  const form  = document.getElementById('room-form-inner');
+  const arrow = document.getElementById('room-arrow');
+  const btn   = document.getElementById('room-toggle');
+  const open  = form.style.display === 'none';
+  form.style.display = open ? 'flex' : 'none';
+  arrow.textContent  = open ? '▲' : '▼';
+  btn.classList.toggle('open', open);
+}
+
+function joinRoom() {
+  const code  = (document.getElementById('inp-room').value  || '').trim().toUpperCase();
+  const gname = (document.getElementById('inp-group').value || '').trim();
+  if (!code || !gname) { alert('ルームコードとグループ名を入力してください。'); return; }
+  if (!db) { alert('Firebaseが設定されていません。\nfirebase-config.js を設定してください。'); return; }
+  roomInfo = { code, name: gname };
+  sessionStorage.setItem('pg_room', JSON.stringify(roomInfo));
+  showRoomStatus();
+}
+
+function leaveRoom() {
+  roomInfo = null;
+  sessionStorage.removeItem('pg_room');
+  document.getElementById('room-entry').style.display = 'block';
+  document.getElementById('room-status-bar').style.display = 'none';
+}
+
+function showRoomStatus() {
+  document.getElementById('room-entry').style.display = 'none';
+  document.getElementById('room-status-bar').style.display = 'flex';
+  document.getElementById('room-status-text').textContent =
+    `✓  ルーム「${roomInfo.code}」— ${roomInfo.name} として参加中`;
+  startSync();
+}
+
+function startSync() {
+  if (!db || !roomInfo) return;
+  db.collection('rooms').doc(roomInfo.code)
+    .collection('groups').doc(roomInfo.name)
+    .onSnapshot(snap => {
+      const data = snap.data();
+      if (!data || !data.trends || data.trendUpdatedBy === sessionId) return;
+      const remote = data.trends;
+      ['mega', 'mid'].forEach(type => {
+        if (!remote[type]) return;
+        if (JSON.stringify(drawnTrends[type]) === JSON.stringify(remote[type])) return;
+        drawnTrends[type] = remote[type];
+        renderCard(type, remote[type]);
+      });
+      updateSummary();
+    }, err => console.warn('Sync error:', err.message));
+}
+
+function saveTrends() {
+  if (!db || !roomInfo) return;
+  db.collection('rooms').doc(roomInfo.code)
+    .collection('groups').doc(roomInfo.name)
+    .set({ trends: drawnTrends, trendUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(), trendUpdatedBy: sessionId }, { merge: true })
+    .catch(e => console.warn('Firebase save:', e.message));
+}
+
+// ── Gacha logic ──────────────────────────────────────────────────────
+const drawnTrends = { mega: null, mid: null };
+
+function pickRandom(arr) { return Math.floor(Math.random() * arr.length); }
+
+function roll(type) {
+  const panel   = document.getElementById(`panel-${type}`);
+  const display = document.getElementById(`display-${type}`);
+  const pBlock  = document.getElementById(`principle-${type}`);
+  const pText   = document.getElementById(`principle-${type}-text`);
+
+  panel.classList.add('rolling');
+  pBlock.classList.remove('visible');
+
+  let flashes = 0;
+  const deck = TRENDS[type];
+  const interval = setInterval(() => {
+    const i = pickRandom(deck);
+    display.innerHTML = `<div class="card-title">${deck[i].title}</div>`;
+    flashes++;
+    if (flashes >= 8) {
+      clearInterval(interval);
+      const final = pickRandom(deck);
+      drawnTrends[type] = { ...deck[final], index: final };
+      renderCard(type, drawnTrends[type]);
+      panel.classList.remove('rolling');
+      updateSummary();
+      saveTrends();
+    }
+  }, 80);
+}
+
+function renderCard(type, card) {
+  const display = document.getElementById(`display-${type}`);
+  const pBlock  = document.getElementById(`principle-${type}`);
+  const pText   = document.getElementById(`principle-${type}-text`);
+  const deck    = TRENDS[type];
+
+  display.innerHTML = `
+    <div class="card-num">No.${card.index + 1} / ${deck.length}</div>
+    <div class="card-title card-reveal">${card.title}</div>
+    <div class="card-desc card-reveal">${card.desc}</div>`;
+
+  pText.textContent = card.principle;
+  pBlock.classList.add('visible');
+}
+
+function rollAll() {
+  roll('mega');
+  setTimeout(() => roll('mid'), 220);
+}
+
+function updateSummary() {
+  const all     = drawnTrends.mega && drawnTrends.mid;
+  const summary = document.getElementById('summary');
+  const row     = document.getElementById('summary-row');
+  const nextWrap = document.getElementById('next-wrap');
+
+  if (!all) {
+    summary.classList.remove('visible');
+    nextWrap.classList.remove('visible');
+    return;
+  }
+
+  const typeLabels = { mega: 'Mega Trend', mid: 'Middle Trend' };
+  row.innerHTML = Object.entries(drawnTrends).map(([type, card]) => `
+    <div class="summary-item ${type}">
+      <div class="summary-type">${typeLabels[type]}</div>
+      <div class="summary-item-title">${card.title}</div>
+      <div class="summary-item-desc">${card.desc}</div>
+      <div class="summary-item-principle">${card.principle}</div>
+    </div>`).join('');
+
+  summary.classList.add('visible');
+  nextWrap.classList.add('visible');
+}
+
+function goToGacha() {
+  localStorage.setItem('pg_trends', JSON.stringify(drawnTrends));
+  const proceed = () => { location.href = 'index.html'; };
+  if (db && roomInfo) {
+    db.collection('rooms').doc(roomInfo.code)
+      .collection('groups').doc(roomInfo.name)
+      .set({ trends: drawnTrends, groupName: roomInfo.name, trendUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(), trendUpdatedBy: sessionId }, { merge: true })
+      .then(proceed).catch(proceed);
+  } else { proceed(); }
+}
+</script>
+</body>
+</html>
