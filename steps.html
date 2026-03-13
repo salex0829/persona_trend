@@ -471,6 +471,58 @@
       border-radius: 4px; padding: 1px 6px; margin-bottom: 4px;
     }
 
+    /* ── Trends context (Step 1 left column) ── */
+    .trends-context {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .trends-context-label {
+      font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px;
+    }
+    .trend-ctx-item {
+      border-radius: 8px; padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .trend-ctx-item:last-child { margin-bottom: 0; }
+    .trend-ctx-item.mega {
+      background: #fff7ed; border-left: 3px solid #c2410c;
+    }
+    .trend-ctx-item.mid {
+      background: #f0f9ff; border-left: 3px solid #0369a1;
+    }
+    .trend-ctx-type {
+      font-size: 0.58rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .trend-ctx-item.mega .trend-ctx-type { color: #ea580c; }
+    .trend-ctx-item.mid  .trend-ctx-type { color: #0284c7; }
+    .trend-ctx-title {
+      font-family: var(--font-serif); font-size: 0.92rem;
+      font-weight: 700; color: var(--text); margin-bottom: 4px;
+      line-height: 1.45;
+    }
+    .trend-ctx-desc {
+      font-size: 0.74rem; color: var(--text-sub);
+      line-height: 1.65;
+    }
+    .trend-ctx-principle {
+      margin-top: 6px; padding-top: 6px;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      font-size: 0.7rem; line-height: 1.6;
+    }
+    .trend-ctx-item.mega .trend-ctx-principle { color: #9a3412; }
+    .trend-ctx-item.mid  .trend-ctx-principle { color: #075985; }
+    .trend-ctx-principle::before {
+      content: "行動原理 ▸ ";
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; opacity: 0.7;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 680px) {
       .pane-cols { grid-template-columns: 1fr; gap: 24px; }
@@ -488,6 +540,7 @@
   </div>
 </nav>
 
+<div id="_debug_bar" style="display:none;background:#fbbf24;padding:8px 16px;font-size:0.8rem;font-family:monospace;position:sticky;top:56px;z-index:999"></div>
 <div class="page-body">
 
 <div class="room-badge" id="room-badge" style="display:none">
@@ -546,6 +599,7 @@
   <div class="pane-cols">
     <!-- Left: reference card + examples -->
     <div class="pane-left">
+      <div id="trends-context" class="trends-context" style="display:none"></div>
       <div id="ref-value" class="ref-card value"></div>
 
       <div id="prev-summary-1" style="display:none"></div>
@@ -883,6 +937,13 @@ const steps  = JSON.parse(localStorage.getItem('pg_steps')  || '{}');
 let currentStep = 1;
 
 window.addEventListener('DOMContentLoaded', () => {
+  // 一時デバッグ表示
+  const _dbg = document.getElementById('_debug_bar');
+  if (_dbg) {
+    const raw = localStorage.getItem('pg_trends');
+    _dbg.textContent = 'pg_trends: ' + (raw ? JSON.parse(raw).mega.title : 'NULL') + ' / drawn: ' + !!drawn;
+    _dbg.style.display = 'block';
+  }
   if (roomInfo) {
     document.getElementById('room-badge').style.display = 'inline-flex';
     document.getElementById('room-badge-text').textContent =
@@ -912,11 +973,47 @@ window.addEventListener('DOMContentLoaded', () => {
 
 /* ── Populate reference cards ── */
 function populateRefCards() {
+  renderTrendsContext();
   setCard('driver-social', drawn.social, 'social', '社会変化');
   setCard('driver-chaos',  drawn.chaos,  'chaos',  '時代テクスチャー');
   setCard('ref-value',     drawn.value,  'value',  '価値観');
   setCard('ref-life',      drawn.life,   'life',   '生活領域');
   setCard('ref-chaos2',    drawn.chaos,  'chaos',  '時代テクスチャー');
+}
+
+/* ── Render trends context block (Step 1) ── */
+function renderTrendsContext() {
+  try {
+    const el = document.getElementById('trends-context');
+    console.log('[trends] el found:', !!el);
+    if (!el) return;
+    const raw = localStorage.getItem('pg_trends');
+    console.log('[trends] pg_trends raw:', raw ? raw.slice(0, 80) : 'NULL');
+    if (!raw) return;
+    const trends = JSON.parse(raw);
+    console.log('[trends] parsed mega:', trends && trends.mega && trends.mega.title);
+    console.log('[trends] parsed mid:', trends && trends.mid && trends.mid.title);
+    if (!trends || !trends.mega || !trends.mid) return;
+
+    const items = [
+      { type: 'mega', label: 'Mega Trend', data: trends.mega },
+      { type: 'mid',  label: 'Middle Trend', data: trends.mid },
+    ];
+
+    el.innerHTML = `<div class="trends-context-label">選んだトレンド（背景文脈）</div>` +
+      items.map(({ type, label, data }) => `
+        <div class="trend-ctx-item ${type}">
+          <div class="trend-ctx-type">${label}</div>
+          <div class="trend-ctx-title">${esc(data.title)}</div>
+          <div class="trend-ctx-desc">${esc(data.desc)}</div>
+          ${data.principle ? `<div class="trend-ctx-principle">${esc(data.principle)}</div>` : ''}
+        </div>`).join('');
+
+    el.style.display = 'block';
+    console.log('[trends] display set to block');
+  } catch(e) {
+    console.warn('renderTrendsContext error:', e);
+  }
 }
 
 function setCard(id, card, cls, label) {
