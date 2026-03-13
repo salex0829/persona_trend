@@ -392,6 +392,53 @@
     }
     @keyframes syncPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 
+    /* ── Timer ── */
+    .timer-bar {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 16px;
+      margin-bottom: 24px; transition: background 0.3s, border-color 0.3s;
+    }
+    .timer-bar.expired-flash { background: #fef2f2; border-color: #fca5a5; }
+    .timer-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted); white-space: nowrap;
+    }
+    .timer-presets { display: flex; gap: 5px; }
+    .timer-preset {
+      padding: 3px 11px; border-radius: 20px;
+      background: var(--bg); border: 1px solid var(--border);
+      font-size: 0.75rem; font-weight: 500; cursor: pointer;
+      color: var(--text-sub); font-family: var(--font-sans);
+      transition: all 0.15s;
+    }
+    .timer-preset:hover  { border-color: var(--accent); color: var(--accent); }
+    .timer-preset.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+    .timer-digits {
+      font-family: var(--font-serif); font-size: 1.45rem; font-weight: 700;
+      color: var(--text); min-width: 70px; text-align: center;
+      letter-spacing: 0.06em; transition: color 0.3s;
+    }
+    .timer-digits.warning { color: #d97706; }
+    .timer-digits.expired { color: #ef4444; }
+    .timer-controls { display: flex; gap: 7px; margin-left: auto; align-items: center; }
+    .btn-timer-start {
+      padding: 5px 16px; border-radius: 20px;
+      background: var(--accent); color: #fff; border: none;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      font-family: var(--font-sans); transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-timer-start:hover  { background: #4b40c4; }
+    .btn-timer-start.running { background: var(--c-life); }
+    .btn-timer-reset {
+      padding: 5px 10px; border-radius: 20px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 0.85rem; cursor: pointer;
+      font-family: var(--font-sans); transition: all 0.15s;
+    }
+    .btn-timer-reset:hover { border-color: var(--text-sub); color: var(--text-sub); }
+
     /* ── Key decision field ── */
     .key-field {
       background: var(--accent-light);
@@ -482,6 +529,20 @@
     </p>
   </div>
 
+  <div class="timer-bar" id="timer-bar-1">
+    <span class="timer-label">⏱ タイマー</span>
+    <div class="timer-presets">
+      <button class="timer-preset" onclick="setTimerDuration(1,300,this)">5分</button>
+      <button class="timer-preset active" onclick="setTimerDuration(1,600,this)">10分</button>
+      <button class="timer-preset" onclick="setTimerDuration(1,900,this)">15分</button>
+    </div>
+    <span class="timer-digits" id="timer-digits-1">10:00</span>
+    <div class="timer-controls">
+      <button class="btn-timer-start" id="btn-timer-start-1" onclick="toggleTimer(1)">▶ スタート</button>
+      <button class="btn-timer-reset" onclick="resetTimer(1)" title="リセット">↺</button>
+    </div>
+  </div>
+
   <div class="pane-cols">
     <!-- Left: reference card + examples -->
     <div class="pane-left">
@@ -568,6 +629,20 @@
       この価値観を持つ人の、ある1日を想像して書いてみましょう。<br>
       左の参考カードをヒントに、グループでこの未来人が生きる生活シーンを自由に決めましょう。
     </p>
+  </div>
+
+  <div class="timer-bar" id="timer-bar-2">
+    <span class="timer-label">⏱ タイマー</span>
+    <div class="timer-presets">
+      <button class="timer-preset" onclick="setTimerDuration(2,600,this)">10分</button>
+      <button class="timer-preset active" onclick="setTimerDuration(2,900,this)">15分</button>
+      <button class="timer-preset" onclick="setTimerDuration(2,1200,this)">20分</button>
+    </div>
+    <span class="timer-digits" id="timer-digits-2">15:00</span>
+    <div class="timer-controls">
+      <button class="btn-timer-start" id="btn-timer-start-2" onclick="toggleTimer(2)">▶ スタート</button>
+      <button class="btn-timer-reset" onclick="resetTimer(2)" title="リセット">↺</button>
+    </div>
   </div>
 
   <div class="pane-cols">
@@ -665,6 +740,20 @@
       未来人をカードにまとめましょう。<br>
       時代背景はこれまでのカードから自動入力されます。自由に編集してください。
     </p>
+  </div>
+
+  <div class="timer-bar" id="timer-bar-3">
+    <span class="timer-label">⏱ タイマー</span>
+    <div class="timer-presets">
+      <button class="timer-preset" onclick="setTimerDuration(3,300,this)">5分</button>
+      <button class="timer-preset active" onclick="setTimerDuration(3,600,this)">10分</button>
+      <button class="timer-preset" onclick="setTimerDuration(3,900,this)">15分</button>
+    </div>
+    <span class="timer-digits" id="timer-digits-3">10:00</span>
+    <div class="timer-controls">
+      <button class="btn-timer-start" id="btn-timer-start-3" onclick="toggleTimer(3)">▶ スタート</button>
+      <button class="btn-timer-reset" onclick="resetTimer(3)" title="リセット">↺</button>
+    </div>
   </div>
 
   <div class="pane-cols">
@@ -1179,6 +1268,99 @@ function setRecordUI(stepId, isRecording) {
     status.textContent = isRecording ? '録音中...' : '';
     status.classList.toggle('active', isRecording);
   }
+}
+
+/* ── Timer ── */
+const timers = {
+  1: { total: 600,  seconds: 600,  interval: null },
+  2: { total: 900,  seconds: 900,  interval: null },
+  3: { total: 600,  seconds: 600,  interval: null },
+};
+
+function setTimerDuration(id, secs, btn) {
+  clearInterval(timers[id].interval);
+  timers[id].interval = null;
+  timers[id].total   = secs;
+  timers[id].seconds = secs;
+  updateTimerDisplay(id);
+  updateTimerStartBtn(id, false);
+  document.querySelectorAll(`#timer-bar-${id} .timer-preset`).forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+function toggleTimer(id) {
+  if (timers[id].interval) {
+    clearInterval(timers[id].interval);
+    timers[id].interval = null;
+    updateTimerStartBtn(id, false);
+  } else {
+    if (timers[id].seconds <= 0) { timers[id].seconds = timers[id].total; }
+    timers[id].interval = setInterval(() => tickTimer(id), 1000);
+    updateTimerStartBtn(id, true);
+  }
+}
+
+function tickTimer(id) {
+  timers[id].seconds = Math.max(0, timers[id].seconds - 1);
+  updateTimerDisplay(id);
+  if (timers[id].seconds <= 0) {
+    clearInterval(timers[id].interval);
+    timers[id].interval = null;
+    updateTimerStartBtn(id, false);
+    onTimerExpired(id);
+  }
+}
+
+function resetTimer(id) {
+  clearInterval(timers[id].interval);
+  timers[id].interval = null;
+  timers[id].seconds  = timers[id].total;
+  updateTimerDisplay(id);
+  updateTimerStartBtn(id, false);
+  const bar = document.getElementById(`timer-bar-${id}`);
+  if (bar) bar.classList.remove('expired-flash');
+}
+
+function updateTimerDisplay(id) {
+  const el = document.getElementById(`timer-digits-${id}`);
+  if (!el) return;
+  const s = timers[id].seconds;
+  const mm = String(Math.floor(s / 60)).padStart(2, '0');
+  const ss = String(s % 60).padStart(2, '0');
+  el.textContent = `${mm}:${ss}`;
+  el.className = 'timer-digits' + (s <= 0 ? ' expired' : s <= 60 ? ' warning' : '');
+}
+
+function updateTimerStartBtn(id, running) {
+  const btn = document.getElementById(`btn-timer-start-${id}`);
+  if (!btn) return;
+  btn.textContent = running ? '⏸ 一時停止' : '▶ スタート';
+  btn.classList.toggle('running', running);
+}
+
+function onTimerExpired(id) {
+  const bar = document.getElementById(`timer-bar-${id}`);
+  if (bar) {
+    bar.classList.add('expired-flash');
+    setTimeout(() => bar.classList.remove('expired-flash'), 4000);
+  }
+  beepTimer();
+}
+
+function beepTimer() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.35, 0.7].forEach(t => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.3);
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + 0.3);
+    });
+  } catch(e) {}
 }
 
 /* ── Helpers ── */

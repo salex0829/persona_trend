@@ -202,6 +202,51 @@
     .lens-card.pheno .lens-icon   { background: #f8fafc; }
     .lens-card.pheno .lens-discipline { color: #334155; }
 
+    /* ── Timer ── */
+    .timer-bar {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 16px;
+      margin-bottom: 28px; transition: background 0.3s, border-color 0.3s;
+    }
+    .timer-bar.expired-flash { background: #fef2f2; border-color: #fca5a5; }
+    .timer-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted); white-space: nowrap;
+    }
+    .timer-presets { display: flex; gap: 5px; }
+    .timer-preset {
+      padding: 3px 11px; border-radius: 20px;
+      background: var(--bg); border: 1px solid var(--border);
+      font-size: 0.75rem; font-weight: 500; cursor: pointer;
+      color: var(--text-sub); font-family: var(--font-sans); transition: all 0.15s;
+    }
+    .timer-preset:hover  { border-color: var(--accent); color: var(--accent); }
+    .timer-preset.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+    .timer-digits {
+      font-family: var(--font-serif); font-size: 1.45rem; font-weight: 700;
+      color: var(--text); min-width: 70px; text-align: center;
+      letter-spacing: 0.06em; transition: color 0.3s;
+    }
+    .timer-digits.warning { color: #d97706; }
+    .timer-digits.expired { color: #ef4444; }
+    .timer-controls { display: flex; gap: 7px; margin-left: auto; align-items: center; }
+    .btn-timer-start {
+      padding: 5px 16px; border-radius: 20px;
+      background: var(--accent); color: #fff; border: none;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      font-family: var(--font-sans); transition: background 0.2s; white-space: nowrap;
+    }
+    .btn-timer-start:hover  { background: #4b40c4; }
+    .btn-timer-start.running { background: var(--c-life); }
+    .btn-timer-reset {
+      padding: 5px 10px; border-radius: 20px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 0.85rem; cursor: pointer;
+      font-family: var(--font-sans); transition: all 0.15s;
+    }
+    .btn-timer-reset:hover { border-color: var(--text-sub); color: var(--text-sub); }
+
     /* ── Shuffle button ── */
     .shuffle-wrap {
       text-align: center; margin-bottom: 36px;
@@ -380,6 +425,20 @@
       このペルソナを照らし合わせましょう。<br>
       未来の姿の中に宿る「変わらない人間」の輪郭が見えてきます。
     </p>
+  </div>
+
+  <div class="timer-bar" id="timer-bar-cmp">
+    <span class="timer-label">⏱ タイマー</span>
+    <div class="timer-presets">
+      <button class="timer-preset" onclick="setTimerDuration(600,this)">10分</button>
+      <button class="timer-preset active" onclick="setTimerDuration(900,this)">15分</button>
+      <button class="timer-preset" onclick="setTimerDuration(1200,this)">20分</button>
+    </div>
+    <span class="timer-digits" id="timer-digits-cmp">15:00</span>
+    <div class="timer-controls">
+      <button class="btn-timer-start" id="btn-timer-start-cmp" onclick="toggleTimer()">▶ スタート</button>
+      <button class="btn-timer-reset" onclick="resetTimer()" title="リセット">↺</button>
+    </div>
   </div>
 
   <div class="shuffle-wrap">
@@ -890,6 +949,87 @@ function setRecordUI(stepId, isRecording) {
     status.textContent = isRecording ? '録音中...' : '';
     status.classList.toggle('active', isRecording);
   }
+}
+
+/* ── Timer ── */
+const cmpTimer = { total: 900, seconds: 900, interval: null };
+
+function setTimerDuration(secs, btn) {
+  clearInterval(cmpTimer.interval);
+  cmpTimer.interval = null;
+  cmpTimer.total   = secs;
+  cmpTimer.seconds = secs;
+  updateTimerDisplay();
+  updateTimerStartBtn(false);
+  document.querySelectorAll('#timer-bar-cmp .timer-preset').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+function toggleTimer() {
+  if (cmpTimer.interval) {
+    clearInterval(cmpTimer.interval);
+    cmpTimer.interval = null;
+    updateTimerStartBtn(false);
+  } else {
+    if (cmpTimer.seconds <= 0) { cmpTimer.seconds = cmpTimer.total; }
+    cmpTimer.interval = setInterval(tickTimer, 1000);
+    updateTimerStartBtn(true);
+  }
+}
+
+function tickTimer() {
+  cmpTimer.seconds = Math.max(0, cmpTimer.seconds - 1);
+  updateTimerDisplay();
+  if (cmpTimer.seconds <= 0) {
+    clearInterval(cmpTimer.interval);
+    cmpTimer.interval = null;
+    updateTimerStartBtn(false);
+    onTimerExpired();
+  }
+}
+
+function resetTimer() {
+  clearInterval(cmpTimer.interval);
+  cmpTimer.interval = null;
+  cmpTimer.seconds  = cmpTimer.total;
+  updateTimerDisplay();
+  updateTimerStartBtn(false);
+  document.getElementById('timer-bar-cmp')?.classList.remove('expired-flash');
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('timer-digits-cmp');
+  if (!el) return;
+  const s = cmpTimer.seconds;
+  el.textContent = `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  el.className = 'timer-digits' + (s <= 0 ? ' expired' : s <= 60 ? ' warning' : '');
+}
+
+function updateTimerStartBtn(running) {
+  const btn = document.getElementById('btn-timer-start-cmp');
+  if (!btn) return;
+  btn.textContent = running ? '⏸ 一時停止' : '▶ スタート';
+  btn.classList.toggle('running', running);
+}
+
+function onTimerExpired() {
+  const bar = document.getElementById('timer-bar-cmp');
+  if (bar) { bar.classList.add('expired-flash'); setTimeout(() => bar.classList.remove('expired-flash'), 4000); }
+  beepTimer();
+}
+
+function beepTimer() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.35, 0.7].forEach(t => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.3);
+      osc.start(ctx.currentTime + t); osc.stop(ctx.currentTime + t + 0.3);
+    });
+  } catch(e) {}
 }
 
 /* ── Helpers ── */
