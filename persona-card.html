@@ -272,7 +272,7 @@
       <a href="steps.html" class="back-link">← 編集に戻る</a>
       <button class="btn-print" onclick="window.print()">印刷 / PDF</button>
     </div>
-    <a href="index.html" class="btn-restart">最初からやり直す</a>
+    <a href="trends.html" class="btn-restart">最初からやり直す</a>
   </div>
 </nav>
 
@@ -294,8 +294,9 @@ try {
 } catch(e) { console.warn('Firebase unavailable:', e.message); }
 
 const roomInfo = JSON.parse(sessionStorage.getItem('pg_room') || 'null');
-let drawn = JSON.parse(localStorage.getItem('pg_drawn') || 'null');
+let drawn  = JSON.parse(localStorage.getItem('pg_drawn')  || 'null');
 let steps  = JSON.parse(localStorage.getItem('pg_steps')  || '{}');
+let trends = JSON.parse(localStorage.getItem('pg_trends') || 'null');
 
 window.addEventListener('DOMContentLoaded', () => {
   if (!drawn && !steps.step4) {
@@ -320,15 +321,17 @@ function startSync() {
       const data = snap.data();
       if (!data) return;
       let changed = false;
-      if (data.steps) { steps = data.steps; localStorage.setItem('pg_steps', JSON.stringify(steps)); changed = true; }
-      if (data.drawn) { drawn = data.drawn; localStorage.setItem('pg_drawn', JSON.stringify(drawn)); changed = true; }
+      if (data.steps)  { steps  = data.steps;  localStorage.setItem('pg_steps',  JSON.stringify(steps));  changed = true; }
+      if (data.drawn)  { drawn  = data.drawn;  localStorage.setItem('pg_drawn',  JSON.stringify(drawn));  changed = true; }
+      if (data.trends) { trends = data.trends; localStorage.setItem('pg_trends', JSON.stringify(trends)); changed = true; }
       if (changed) { renderCard(); renderContext(); }
     }, err => console.warn('Sync error:', err.message));
 }
 
 function renderCard() {
   const s4 = steps.step4 || {};
-  const extraDrivers = steps.extraDrivers || [];
+  const s2 = steps.step2 || {};
+  const s3 = steps.step3 || {};
 
   const name      = s4.name      || '（名前未設定）';
   const age       = s4.age;
@@ -338,15 +341,19 @@ function renderCard() {
   const strange   = s4.strange;
   const services  = s4.services;
 
-  // World chips
+  // World chips — 参加者が入力した内容を優先表示
   const chipDefs = [];
-  if (drawn) {
+  if (trends?.mega) chipDefs.push({ cls: 'social', title: trends.mega.title });
+  if (trends?.mid)  chipDefs.push({ cls: 'chaos',  title: trends.mid.title  });
+  if (s2.valuecore) chipDefs.push({ cls: 'value',  title: s2.valuecore      });
+  if (s3.lifefocus) chipDefs.push({ cls: 'life',   title: s3.lifefocus      });
+  // 入力がない場合はガチャカードにフォールバック
+  if (chipDefs.length === 0 && drawn) {
     chipDefs.push({ cls: 'social', title: drawn.social?.title });
     chipDefs.push({ cls: 'chaos',  title: drawn.chaos?.title  });
     chipDefs.push({ cls: 'value',  title: drawn.value?.title  });
     chipDefs.push({ cls: 'life',   title: drawn.life?.title   });
   }
-  extraDrivers.forEach(d => chipDefs.push({ cls: 'social', title: d.title }));
   const chips = chipDefs.filter(c => c.title)
     .map(c => `<span class="pc-chip ${c.cls}">${esc(c.title)}</span>`).join('');
 
@@ -391,17 +398,19 @@ function renderContext() {
   const s3 = steps.step3 || {};
 
   const q2 = [
+    { q: '価値観キーワード（グループで決めたもの）',   a: s2.valuecore },
     { q: 'この環境で生きる人にとって、何が「安心」か', a: s2.q1 },
-    { q: '何が「恥ずかしい」「古い」と感じられるか',  a: s2.q2 },
-    { q: '何に時間を使うことが「豊か」とされるか',    a: s2.q3 },
-    { q: '何を信用するか',                            a: s2.q4 },
+    { q: '何が「恥ずかしい」「古い」と感じられるか',   a: s2.q2 },
+    { q: '何に時間を使うことが「豊か」とされるか',     a: s2.q3 },
+    { q: '何を信用するか',                             a: s2.q4 },
   ].filter(x => x.a);
 
   const q3 = [
-    { q: '朝起きて最初に何をするか',               a: s3.d1 },
-    { q: 'どんな相手と意思決定するか',             a: s3.d2 },
-    { q: '移動・買い物・学習・ケアをどう行うか',   a: s3.d3 },
-    { q: '何を煩わしいと思うか',                   a: s3.d4 },
+    { q: '生活シーンキーワード（グループで決めたもの）', a: s3.lifefocus },
+    { q: '朝起きて最初に何をするか',                    a: s3.d1 },
+    { q: 'どんな相手と意思決定するか',                  a: s3.d2 },
+    { q: '移動・買い物・学習・ケアをどう行うか',        a: s3.d3 },
+    { q: '何を煩わしいと思うか',                        a: s3.d4 },
   ].filter(x => x.a);
 
   if (!q2.length && !q3.length) return;
@@ -415,19 +424,19 @@ function renderContext() {
   let inner = '';
   if (q2.length) inner += `
     <div class="context-group">
-      <div class="context-group-title">価値観の転換（Step 2）</div>
+      <div class="context-group-title">価値観の転換（Step 1）</div>
       ${qaHTML(q2)}
     </div>`;
   if (q3.length) inner += `
     <div class="context-group">
-      <div class="context-group-title">日常の記述（Step 3）</div>
+      <div class="context-group-title">日常の記述（Step 2）</div>
       ${qaHTML(q3)}
     </div>`;
 
   document.getElementById('context-section').innerHTML = `
     <div class="context-section">
       <button class="context-toggle" onclick="toggleContext(this)">
-        <span>思考の過程を見る（Step 2 · 3 の回答）</span>
+        <span>思考の過程を見る（Step 1 · 2 の回答）</span>
         <span>▼</span>
       </button>
       <div class="context-body">${inner}</div>
