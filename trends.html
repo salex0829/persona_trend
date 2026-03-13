@@ -424,8 +424,8 @@
 
 <!-- Next -->
 <div class="next-wrap" id="next-wrap">
-  <p class="next-hint">2つのトレンドが揃いました。次はペルソナのカードを引きましょう。</p>
-  <button class="btn-next" onclick="goToGacha()">ガチャを引きに行く →</button>
+  <p class="next-hint">2つのトレンドが揃いました。次はペルソナを作りましょう。</p>
+  <button class="btn-next" onclick="goToSteps()">ペルソナ作成へ進む →</button>
 </div>
 
 <footer>
@@ -802,13 +802,87 @@ function updateSummary() {
   nextWrap.classList.add('visible');
 }
 
-function goToGacha() {
+// ── Gacha decks (auto-drawn silently before moving to steps.html) ──
+const GACHA_DECKS = {
+  social: [
+    { title: "AIが合意形成を担う",             desc: "会議や相談ごとで、AIが結論づくりの一部を担っている。" },
+    { title: "AIが個人の代理で交渉する",        desc: "人の代わりに、AIが予定・契約・条件交渉を行う。" },
+    { title: "感情や体調が常時推定される",      desc: "気分や疲労の状態が、日常的に可視化されている。" },
+    { title: "教育が年齢で区切られない",        desc: "何歳でも学び直しや越級が自然になっている。" },
+    { title: "仕事がプロジェクト参加型になる",  desc: "所属よりも、その都度どの活動に加わるかが重視される。" },
+    { title: "評価が学歴より記録で決まる",      desc: "肩書きよりも、実際の行動や貢献のログが見られる。" },
+    { title: "所有より利用権が一般化する",      desc: "持つことより、必要なときに使えることが価値になる。" },
+    { title: "家族が契約で再編される",          desc: "血縁だけでなく、合意によって家族的関係がつくられる。" },
+    { title: "健康管理が予防中心になる",        desc: "病気になってからではなく、日常の調整が重視される。" },
+    { title: "育児や介護を家族外で担う",        desc: "ケアは家庭の中だけでなく、社会全体で分担される。" },
+    { title: "個人データの主導権が本人に戻る",  desc: "自分の情報を誰に、どこまで渡すかを本人が決める。" },
+    { title: "複数コミュニティ所属が前提になる", desc: "一つの会社や地域ではなく、複数の場を行き来して生きる。" },
+  ],
+  value: [
+    { title: "回復",       desc: "頑張り続けることより、回復し続けられることが大事。" },
+    { title: "接続",       desc: "孤立して完結するより、つながりの中で生きることを重視する。" },
+    { title: "可変性",     desc: "一度決めた形を守るより、変えられることに価値がある。" },
+    { title: "透明性",     desc: "見えないことより、経緯や判断が見えることが信頼につながる。" },
+    { title: "信頼",       desc: "速さや便利さより、安心して任せられる関係が優先される。" },
+    { title: "自己決定",   desc: "自分のあり方や選択を、自分で決められることを大事にする。" },
+    { title: "ケア",       desc: "成果や効率より、互いを気にかけることが重視される。" },
+    { title: "公平性",     desc: "一律に同じより、それぞれに合った扱いのほうが公平だと考える。" },
+    { title: "継続可能性", desc: "今だけ良ければいいより、無理なく続けられることを選ぶ。" },
+    { title: "相互扶助",   desc: "一人で解決するより、助け合いながら進むことを自然と考える。" },
+    { title: "柔軟性",     desc: "固定された正解より、状況に応じて動けることに価値がある。" },
+    { title: "更新性",     desc: "完成より、学びながら更新し続けられることが望ましい。" },
+  ],
+  life: [
+    { title: "学び",            desc: "この未来人にとって、学ぶことはどう変わるか。" },
+    { title: "労働",            desc: "この未来人にとって、働くことは何を意味するか。" },
+    { title: "ケア",            desc: "この未来人は、誰をどう気にかけて生きているか。" },
+    { title: "住まい",          desc: "この未来人にとって、住むとはどんな状態か。" },
+    { title: "子育て",          desc: "この未来人は、子どもとどう関わり育てるか。" },
+    { title: "介護",            desc: "この未来人は、老いや弱さとどう向き合うか。" },
+    { title: "健康管理",        desc: "この未来人は、健康をどう保ち、どう測るか。" },
+    { title: "お金",            desc: "この未来人は、何にお金を払い、何に払わないか。" },
+    { title: "情報収集",        desc: "この未来人は、何を信じ、何を疑うか。" },
+    { title: "意思決定",        desc: "この未来人は、重要なことを誰とどう決めるか。" },
+    { title: "コミュニティ参加", desc: "この未来人は、どんな場に所属し、どう関わるか。" },
+    { title: "所有",            desc: "この未来人は、何を自分のものにしたいと思うか。" },
+  ],
+  chaos: [
+    { title: "感染症が世界的に流行する",         desc: "外出・集会・移動の制限が日常化し、会う・働く・学ぶの前提がすべて変わった。" },
+    { title: "大規模な自然災害が起きる",         desc: "地震・洪水・山火事などで、住む場所やインフラが突然失われた。" },
+    { title: "経済が急激に崩壊する",             desc: "通貨の暴落や金融危機で、雇用・貯蓄・物価が一変し、生活の見通しが立たなくなった。" },
+    { title: "戦争・武力紛争が身近になる",       desc: "地政学的対立が激化し、安全・移動の自由・日常の安心が脅かされた。" },
+    { title: "大規模停電・インフラが長期停止する", desc: "電気・水道・ネットが使えない期間が続き、あらゆる日常の前提が崩れた。" },
+    { title: "AI・システムの大規模障害が起きる", desc: "社会インフラに組み込まれたAIや基幹システムが機能不全に陥り、行政・金融・医療が止まった。" },
+    { title: "食料・エネルギーが深刻に不足する", desc: "食料や燃料が手に入りにくくなり、何をどう食べるかという生活の基盤が揺らいだ。" },
+    { title: "大規模なサイバー攻撃が起きる",     desc: "金融・医療・行政システムが攻撃され、個人情報と社会への信頼が一気に崩れた。" },
+    { title: "大量移住・難民の急増が起きる",     desc: "短期間に大勢の人が地域に流入し、文化・資源・制度が急激に変わった。" },
+    { title: "政権交代・体制の急変が起きる",     desc: "政治体制が突然変わり、これまで当たり前だったルールや権利が通じなくなった。" },
+    { title: "気候変動で住めない地域が生まれる", desc: "猛暑・海面上昇・干ばつなどで、ある地域が事実上居住不可能になった。" },
+    { title: "自動化で職が大量に消える",         desc: "AI・ロボット化が想定外のスピードで進み、多くの人が仕事を一気に失った。" },
+  ],
+};
+
+function autoDrawGacha() {
+  const drawn = {};
+  for (const cat of ['social', 'value', 'life', 'chaos']) {
+    const deck = GACHA_DECKS[cat];
+    const i = Math.floor(Math.random() * deck.length);
+    drawn[cat] = { ...deck[i], index: i };
+  }
+  return drawn;
+}
+
+function goToSteps() {
   localStorage.setItem('pg_trends', JSON.stringify(drawnTrends));
-  const proceed = () => { location.href = 'index.html'; };
+  const drawn = autoDrawGacha();
+  localStorage.setItem('pg_drawn', JSON.stringify(drawn));
+  localStorage.removeItem('pg_steps');
+
+  const proceed = () => { location.href = 'steps.html'; };
   if (db && roomInfo) {
     db.collection('rooms').doc(roomInfo.code)
       .collection('groups').doc(roomInfo.name)
-      .set({ trends: drawnTrends, groupName: roomInfo.name, trendUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(), trendUpdatedBy: sessionId }, { merge: true })
+      .set({ trends: drawnTrends, drawn, groupName: roomInfo.name, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: sessionId }, { merge: true })
       .then(proceed).catch(proceed);
   } else { proceed(); }
 }
