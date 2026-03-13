@@ -540,7 +540,6 @@
   </div>
 </nav>
 
-<div id="_debug_bar" style="display:none;background:#fbbf24;padding:8px 16px;font-size:0.8rem;font-family:monospace;position:sticky;top:56px;z-index:999"></div>
 <div class="page-body">
 
 <div class="room-badge" id="room-badge" style="display:none">
@@ -937,14 +936,7 @@ const steps  = JSON.parse(localStorage.getItem('pg_steps')  || '{}');
 let currentStep = 1;
 
 window.addEventListener('DOMContentLoaded', () => {
-  // 一時デバッグ表示
-  const _dbg = document.getElementById('_debug_bar');
-  if (_dbg) {
-    const raw = localStorage.getItem('pg_trends');
-    _dbg.textContent = 'pg_trends: ' + (raw ? JSON.parse(raw).mega.title : 'NULL') + ' / drawn: ' + !!drawn;
-    _dbg.style.display = 'block';
-  }
-  if (roomInfo) {
+if (roomInfo) {
     document.getElementById('room-badge').style.display = 'inline-flex';
     document.getElementById('room-badge-text').textContent =
       `ルーム「${roomInfo.code}」— ${roomInfo.name}`;
@@ -985,14 +977,10 @@ function populateRefCards() {
 function renderTrendsContext() {
   try {
     const el = document.getElementById('trends-context');
-    console.log('[trends] el found:', !!el);
     if (!el) return;
     const raw = localStorage.getItem('pg_trends');
-    console.log('[trends] pg_trends raw:', raw ? raw.slice(0, 80) : 'NULL');
     if (!raw) return;
     const trends = JSON.parse(raw);
-    console.log('[trends] parsed mega:', trends && trends.mega && trends.mega.title);
-    console.log('[trends] parsed mid:', trends && trends.mid && trends.mid.title);
     if (!trends || !trends.mega || !trends.mid) return;
 
     const items = [
@@ -1006,14 +994,11 @@ function renderTrendsContext() {
           <div class="trend-ctx-type">${label}</div>
           <div class="trend-ctx-title">${esc(data.title)}</div>
           <div class="trend-ctx-desc">${esc(data.desc)}</div>
-          ${data.principle ? `<div class="trend-ctx-principle">${esc(data.principle)}</div>` : ''}
+          ${data.principle ? '<div class="trend-ctx-principle">' + esc(data.principle) + '</div>' : ''}
         </div>`).join('');
 
     el.style.display = 'block';
-    console.log('[trends] display set to block');
-  } catch(e) {
-    console.warn('renderTrendsContext error:', e);
-  }
+  } catch(e) {}
 }
 
 function setCard(id, card, cls, label) {
