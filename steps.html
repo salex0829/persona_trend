@@ -374,7 +374,7 @@
 
     /* ── Share button ── */
     .btn-share {
-      display: none; align-items: center; gap: 6px;
+      display: flex; align-items: center; gap: 6px;
       padding: 8px 22px; border-radius: 8px;
       border: 1.5px solid var(--c-life); color: var(--c-life);
       background: var(--c-life-bg); font-size: 0.82rem; font-weight: 600;
@@ -383,7 +383,6 @@
     }
     .btn-share:hover { background: var(--c-life); color: #fff; }
     .btn-share.sent  { background: var(--c-life); color: #fff; pointer-events: none; }
-    .in-room .btn-share { display: flex; }
 
     /* ── Sync indicator ── */
     .sync-dot {
@@ -406,7 +405,7 @@
 <nav class="site-nav">
   <div class="nav-inner">
     <a href="top.html" class="nav-logo">未来社会ペルソナガチャ</a>
-    <a href="index.html" class="nav-link">← ガチャに戻る</a>
+    <a href="trends.html" class="nav-link">← トレンドに戻る</a>
   </div>
 </nav>
 
@@ -423,91 +422,27 @@
   <div class="progress-track">
     <div class="prog-step active" id="ps-1">
       <div class="prog-dot active" id="pd-1">1</div>
-      <div class="prog-label">変化<br>ドライバー</div>
+      <div class="prog-label">価値観の<br>転換</div>
     </div>
     <div class="prog-connector" id="pc-1"></div>
     <div class="prog-step" id="ps-2">
       <div class="prog-dot" id="pd-2">2</div>
-      <div class="prog-label">価値観の<br>転換</div>
+      <div class="prog-label">日常を<br>書く</div>
     </div>
     <div class="prog-connector" id="pc-2"></div>
     <div class="prog-step" id="ps-3">
       <div class="prog-dot" id="pd-3">3</div>
-      <div class="prog-label">日常を<br>書く</div>
-    </div>
-    <div class="prog-connector" id="pc-3"></div>
-    <div class="prog-step" id="ps-4">
-      <div class="prog-dot" id="pd-4">4</div>
       <div class="prog-label">プロ<br>フィール</div>
     </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════════
-     Step 1: 変化ドライバーを選ぶ
+     Step 1: 価値観の転換を考える
 ════════════════════════════════════════════ -->
 <div id="pane-1" class="pane">
   <div class="pane-intro">
-    <div class="step-badge">Step 1 / 4</div>
-    <h2>変化ドライバーを選ぶ</h2>
-    <p class="step-desc">
-      ガチャで引いたカードが、この世界を揺らしている条件です。<br>
-      必要なら社会変化カードをもう1〜2枚追加して、前提をかためましょう。
-    </p>
-  </div>
-
-  <div class="pane-cols">
-    <!-- Left: reference cards + example -->
-    <div class="pane-left">
-      <div id="driver-social" class="ref-card social"></div>
-      <div id="driver-chaos"  class="ref-card chaos"></div>
-
-      <button class="btn-extra" id="btn-extra" onclick="drawExtra()">+ 社会変化カードをもう1枚引く</button>
-      <div id="extra-cards"></div>
-
-      <div class="example-box">
-        <div class="example-label">記入例</div>
-        <div class="example-text">AIが多くの意思決定を補助し、所有より利用権が当たり前になった社会。複数のコミュニティを行き来しながら生きる人が多くなり、デジタルと現実の境界が薄れている。</div>
-      </div>
-    </div>
-
-    <!-- Right: input -->
-    <div class="pane-right">
-      <div class="field-group">
-        <label>この世界の前提を、自分の言葉でまとめてみましょう（任意）</label>
-        <textarea id="s1-memo" rows="10"
-          placeholder="引いたカードをもとに、この社会の状況を自由に書いてみてください。"></textarea>
-      </div>
-    </div>
-  </div>
-
-  <div class="discussion-wrap">
-    <div class="discussion-label">ディスカッションメモ（音声書き起こし）</div>
-    <p class="voice-unsupported" id="s1-unsupported">※ このブラウザは音声認識に対応していません。テキストを直接入力してください。</p>
-    <div class="voice-controls">
-      <button class="btn-record" id="s1-record-btn" onclick="toggleRecord('s1')">
-        <span class="rec-dot"></span>録音開始
-      </button>
-      <span class="record-status" id="s1-record-status"></span>
-    </div>
-    <p class="voice-interim" id="s1-interim"></p>
-    <textarea id="s1-discuss" rows="4"
-      placeholder="録音した内容がここに表示されます。直接編集することもできます。"></textarea>
-  </div>
-
-  <div class="pane-nav">
-    <span></span>
-    <button class="btn-share" onclick="shareNow(this)">↑ 更新を共有</button>
-    <button class="btn-nav primary" onclick="goToStep(2)">次へ →</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     Step 2: 価値観の転換を考える
-════════════════════════════════════════════ -->
-<div id="pane-2" class="pane hidden">
-  <div class="pane-intro">
-    <div class="step-badge">Step 2 / 4</div>
+    <div class="step-badge">Step 1 / 3</div>
     <h2>価値観の転換を考える</h2>
     <p class="step-desc">
       この環境の中で生きる人は、何を重視するようになるか。<br>
@@ -520,7 +455,7 @@
     <div class="pane-left">
       <div id="ref-value" class="ref-card value"></div>
 
-      <div id="prev-summary-2" style="display:none"></div>
+      <div id="prev-summary-1" style="display:none"></div>
 
       <div class="example-box">
         <div class="example-label">記入例</div>
@@ -579,18 +514,18 @@
   </div>
 
   <div class="pane-nav">
-    <button class="btn-nav" onclick="goToStep(1)">← 前へ</button>
+    <a href="trends.html" class="btn-nav">← トレンドに戻る</a>
     <button class="btn-share" onclick="shareNow(this)">↑ 更新を共有</button>
-    <button class="btn-nav primary" onclick="goToStep(3)">次へ →</button>
+    <button class="btn-nav primary" onclick="goToStep(2)">次へ →</button>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════════
-     Step 3: 日常を書く
+     Step 2: 日常を書く
 ════════════════════════════════════════════ -->
-<div id="pane-3" class="pane hidden">
+<div id="pane-2" class="pane hidden">
   <div class="pane-intro">
-    <div class="step-badge">Step 3 / 4</div>
+    <div class="step-badge">Step 2 / 3</div>
     <h2>日常を書く</h2>
     <p class="step-desc">
       この価値観を持つ人の、ある1日を想像して書いてみましょう。<br>
@@ -604,7 +539,7 @@
       <div id="ref-life"   class="ref-card life"></div>
       <div id="ref-chaos2" class="ref-card chaos"></div>
 
-      <div id="prev-summary-3" style="display:none"></div>
+      <div id="prev-summary-2" style="display:none"></div>
 
       <div class="example-box">
         <div class="example-label">記入例</div>
@@ -671,18 +606,18 @@
   </div>
 
   <div class="pane-nav">
-    <button class="btn-nav" onclick="goToStep(2)">← 前へ</button>
+    <button class="btn-nav" onclick="goToStep(1)">← 前へ</button>
     <button class="btn-share" onclick="shareNow(this)">↑ 更新を共有</button>
-    <button class="btn-nav primary" onclick="goToStep(4)">次へ →</button>
+    <button class="btn-nav primary" onclick="goToStep(3)">次へ →</button>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════════
-     Step 4: プロフィール化する
+     Step 3: プロフィール化する
 ════════════════════════════════════════════ -->
-<div id="pane-4" class="pane hidden">
+<div id="pane-3" class="pane hidden">
   <div class="pane-intro">
-    <div class="step-badge">Step 4 / 4</div>
+    <div class="step-badge">Step 3 / 3</div>
     <h2>プロフィール化する</h2>
     <p class="step-desc">
       未来人をカードにまとめましょう。<br>
@@ -693,7 +628,7 @@
   <div class="pane-cols">
     <!-- Left: example persona -->
     <div class="pane-left">
-      <div id="prev-summary-4" style="display:none"></div>
+      <div id="prev-summary-3" style="display:none"></div>
 
       <div class="example-persona">
         <div class="example-label">記入例</div>
@@ -738,11 +673,11 @@
       </div>
       <div class="field-group">
         <label>大事にしている価値観</label>
-        <textarea id="f-values" rows="3" placeholder="Step 2 で考えた内容を凝縮して"></textarea>
+        <textarea id="f-values" rows="3" placeholder="Step 1 で考えた内容を凝縮して"></textarea>
       </div>
       <div class="field-group">
         <label>特徴的な行動</label>
-        <textarea id="f-behaviors" rows="3" placeholder="Step 3 で描いた日常の中から印象的なものを"></textarea>
+        <textarea id="f-behaviors" rows="3" placeholder="Step 2 で描いた日常の中から印象的なものを"></textarea>
       </div>
       <div class="field-group">
         <label>今の人から見ると理解しにくい点</label>
@@ -774,9 +709,9 @@
   </div>
 
   <div class="pane-nav">
-    <button class="btn-nav" onclick="goToStep(3)">← 前へ</button>
+    <button class="btn-nav" onclick="goToStep(2)">← 前へ</button>
     <button class="btn-share" onclick="shareNow(this)">↑ 更新を共有</button>
-    <a href="index.html" class="btn-nav">最初からやり直す</a>
+    <a href="trends.html" class="btn-nav">最初からやり直す</a>
   </div>
 </div>
 
@@ -802,6 +737,7 @@ const SOCIAL_DECK = [
   { title: "教育が年齢で区切られない",        desc: "何歳でも学び直しや越級が自然になっている。" },
   { title: "仕事がプロジェクト参加型になる",  desc: "所属よりも、その都度どの活動に加わるかが重視される。" },
   { title: "評価が学歴より記録で決まる",      desc: "肩書きよりも、実際の行動や貢献のログが見られる。" },
+  // kept for autoPopulatePeriod compatibility
   { title: "所有より利用権が一般化する",      desc: "持つことより、必要なときに使えることが価値になる。" },
   { title: "家族が契約で再編される",          desc: "血縁だけでなく、合意によって家族的関係がつくられる。" },
   { title: "健康管理が予防中心になる",        desc: "病気になってからではなく、日常の調整が重視される。" },
@@ -813,9 +749,7 @@ const SOCIAL_DECK = [
 const drawn = JSON.parse(localStorage.getItem('pg_drawn') || 'null');
 const steps  = JSON.parse(localStorage.getItem('pg_steps')  || '{}');
 
-let currentStep  = 1;
-let extraDrivers = steps.extraDrivers || [];
-let extraCount   = extraDrivers.length;
+let currentStep = 1;
 
 window.addEventListener('DOMContentLoaded', () => {
   if (roomInfo) {
@@ -828,15 +762,13 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.page-body').innerHTML = `
       <div style="text-align:center;padding:80px 20px">
         <p style="color:var(--text-muted);margin-bottom:20px;font-size:0.9rem">ガチャのデータが見つかりません。</p>
-        <a href="index.html" style="color:var(--accent);font-size:0.9rem">← ガチャページへ戻る</a>
+        <a href="trends.html" style="color:var(--accent);font-size:0.9rem">← トレンドページへ戻る</a>
       </div>`;
     return;
   }
 
   populateRefCards();
   restoreAll();
-  extraDrivers.forEach(c => appendExtraCard(c, false));
-  if (extraCount >= 2) document.getElementById('btn-extra').disabled = true;
   if (!val('f-period')) autoPopulatePeriod();
   showStep(1);
   startSync();
@@ -889,12 +821,16 @@ function appendExtraCard(card, animate) {
   document.getElementById('extra-cards').appendChild(el);
 }
 
-/* ── Auto-populate Step 4 period ── */
+/* ── Auto-populate Step 3 period ── */
 function autoPopulatePeriod() {
-  let text = `${drawn.social.title}が進む社会。${drawn.chaos.title}という状況の中で、`;
+  const trends = JSON.parse(localStorage.getItem('pg_trends') || 'null');
+  let text = '';
+  if (trends) {
+    text += `【メガトレンド】${trends.mega.title}が進む時代。`;
+    text += `【ミドルトレンド】${trends.mid.title}が普及しつつある。\n`;
+  }
+  text += `${drawn.social.title}が当たり前になり、${drawn.chaos.title}という状況の中で、`;
   text += `人々の「${drawn.value.title}」への意識が高まっている。`;
-  const extras = extraDrivers.map(d => d.title);
-  if (extras.length) text += `\nさらに${extras.join('、')}という変化も重なる。`;
   document.getElementById('f-period').value = text;
 }
 
@@ -912,44 +848,33 @@ function updatePrevSummary(n) {
 
   let html = '';
 
-  // Step 1
-  const s1memo = val('s1-memo');
-  if (s1memo) {
+  // Step 1 — 価値観の転換 (for steps 2 and 3)
+  const items1 = [
+    makeItem('何が「安心」か', val('s2-q1')),
+    makeItem('何が「恥ずかしい・古い」か', val('s2-q2')),
+    makeItem('「豊か」な時間の使い方', val('s2-q3')),
+    makeItem('何を「信用」するか', val('s2-q4')),
+  ].join('');
+  if (items1) {
     html += `<div class="prev-summary-section">
-      <div class="prev-summary-step-label">Step 1 — 世界の前提</div>
-      <div class="prev-summary-a">${esc(s1memo)}</div>
+      <div class="prev-summary-step-label">Step 1 — 価値観の転換</div>
+      ${items1}
     </div>`;
   }
 
-  // Step 2 (for steps 3 and 4)
+  // Step 2 — 日常 (for step 3)
   if (n >= 3) {
-    const items = [
-      makeItem('何が「安心」か', val('s2-q1')),
-      makeItem('何が「恥ずかしい・古い」か', val('s2-q2')),
-      makeItem('「豊か」な時間の使い方', val('s2-q3')),
-      makeItem('何を「信用」するか', val('s2-q4')),
-    ].join('');
-    if (items) {
-      html += `<div class="prev-summary-section">
-        <div class="prev-summary-step-label">Step 2 — 価値観の転換</div>
-        ${items}
-      </div>`;
-    }
-  }
-
-  // Step 3 (for step 4)
-  if (n >= 4) {
-    const items = [
+    const items2 = [
       makeItem('朝起きて最初に何をするか', val('s3-d1')),
       makeItem('どんな相手と意思決定するか', val('s3-d2')),
       makeItem('移動・買い物・学習・ケア', val('s3-d3')),
       makeItem('何を煩わしいと思うか', val('s3-d4')),
       makeItem('カオスによる日常の変化', val('s3-d5')),
     ].join('');
-    if (items) {
+    if (items2) {
       html += `<div class="prev-summary-section">
-        <div class="prev-summary-step-label">Step 3 — 日常</div>
-        ${items}
+        <div class="prev-summary-step-label">Step 2 — 日常を書く</div>
+        ${items2}
       </div>`;
     }
   }
@@ -970,7 +895,7 @@ function updatePrevSummary(n) {
 /* ── Step navigation ── */
 function showStep(n) {
   currentStep = n;
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 3; i++) {
     document.getElementById(`pane-${i}`).classList.toggle('hidden', i !== n);
     const ps = document.getElementById(`ps-${i}`);
     const pd = document.getElementById(`pd-${i}`);
@@ -984,7 +909,7 @@ function showStep(n) {
       ps.className = 'prog-step';
       pd.className = 'prog-dot';
     }
-    if (i < 4) {
+    if (i < 3) {
       document.getElementById(`pc-${i}`).classList.toggle('done', i < n);
     }
   }
@@ -999,8 +924,6 @@ function goToStep(n) {
 
 /* ── Persist data ── */
 function saveAll() {
-  steps.extraDrivers = extraDrivers;
-  steps.step1 = { memo: val('s1-memo'), discuss: val('s1-discuss') };
   steps.step2 = { q1: val('s2-q1'), q2: val('s2-q2'), q3: val('s2-q3'), q4: val('s2-q4'), discuss: val('s2-discuss') };
   steps.step3 = { d1: val('s3-d1'), d2: val('s3-d2'), d3: val('s3-d3'), d4: val('s3-d4'), d5: val('s3-d5'), discuss: val('s3-discuss') };
   steps.step4 = {
@@ -1061,7 +984,6 @@ function applyRemoteSteps(r) {
     const el = document.getElementById(id);
     if (el && el !== document.activeElement) el.value = v || '';
   };
-  if (r.step1) { sync('s1-memo', r.step1.memo); sync('s1-discuss', r.step1.discuss); }
   if (r.step2) {
     sync('s2-q1', r.step2.q1); sync('s2-q2', r.step2.q2);
     sync('s2-q3', r.step2.q3); sync('s2-q4', r.step2.q4);
@@ -1078,21 +1000,12 @@ function applyRemoteSteps(r) {
     sync('f-behaviors', r.step4.behaviors); sync('f-strange', r.step4.strange);
     sync('f-services', r.step4.services); sync('s4-discuss', r.step4.discuss);
   }
-  // 追加カードを同期
-  if (r.extraDrivers && JSON.stringify(r.extraDrivers) !== JSON.stringify(extraDrivers)) {
-    extraDrivers = r.extraDrivers;
-    extraCount = extraDrivers.length;
-    document.getElementById('extra-cards').innerHTML = '';
-    extraDrivers.forEach(c => appendExtraCard(c, false));
-    if (extraCount >= 2) document.getElementById('btn-extra').disabled = true;
-  }
   updatePrevSummary(currentStep);
 }
 
 function applyRemoteCompare() { /* compare.html 側で処理 */ }
 
 function restoreAll() {
-  if (steps.step1) { set('s1-memo', steps.step1.memo); set('s1-discuss', steps.step1.discuss); }
   if (steps.step2) {
     set('s2-q1', steps.step2.q1); set('s2-q2', steps.step2.q2);
     set('s2-q3', steps.step2.q3); set('s2-q4', steps.step2.q4);
@@ -1135,7 +1048,7 @@ const recorders = {};
 
 window.addEventListener('DOMContentLoaded', () => {
   if (!SpeechRecognition) {
-    ['s1','s2','s3','s4'].forEach(id => {
+    ['s2','s3','s4'].forEach(id => {
       const el = document.getElementById(`${id}-unsupported`);
       const btn = document.getElementById(`${id}-record-btn`);
       if (el) el.style.display = 'block';

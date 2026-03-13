@@ -278,7 +278,7 @@
 
     /* ── Share button ── */
     .btn-share {
-      display: none; align-items: center; gap: 6px;
+      display: flex; align-items: center; gap: 6px;
       padding: 10px 24px; border-radius: 8px;
       border: 1.5px solid var(--c-life); color: var(--c-life);
       background: var(--c-life-bg); font-size: 0.875rem; font-weight: 600;
@@ -373,7 +373,7 @@
   <div class="page-nav">
     <a href="persona-card.html" class="btn-nav">← ペルソナカードに戻る</a>
     <button class="btn-share" id="share-btn" onclick="shareNow()">↑ 更新を共有</button>
-    <a href="index.html" class="btn-nav">最初からやり直す</a>
+    <a href="trends.html" class="btn-nav">最初からやり直す</a>
   </div>
 
 </div>
@@ -465,8 +465,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderLenses();
   restoreAll();
   startSync();
-  // ルーム参加中のみ共有ボタンを表示
-  if (roomInfo) document.getElementById('share-btn').style.display = 'flex';
+  // 共有ボタンは常時表示（CSS で display:flex 設定済み）
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
