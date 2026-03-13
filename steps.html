@@ -493,28 +493,29 @@
       border-radius: 4px; padding: 1px 6px; margin-bottom: 4px;
     }
 
-    /* ── Trends context (Step 1 left column) ── */
+    /* ── Trends context set card (Step 1 left column) ── */
     .trends-context {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 14px 16px;
+      overflow: hidden;
     }
     .trends-context-label {
       font-size: 0.6rem; font-weight: 700;
       letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--text-muted); margin-bottom: 10px;
+      color: var(--text-muted);
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
     }
     .trend-ctx-item {
-      border-radius: 8px; padding: 10px 12px;
-      margin-bottom: 8px;
+      padding: 12px 14px;
     }
-    .trend-ctx-item:last-child { margin-bottom: 0; }
     .trend-ctx-item.mega {
-      background: #fff7ed; border-left: 3px solid #c2410c;
+      border-left: 3px solid #c2410c;
     }
     .trend-ctx-item.mid {
-      background: #f0f9ff; border-left: 3px solid #0369a1;
+      border-left: 3px solid #0369a1;
+      border-top: 1px solid var(--border);
     }
     .trend-ctx-type {
       font-size: 0.58rem; font-weight: 700;
