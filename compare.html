@@ -170,6 +170,54 @@
     .lens-card.philo .lens-icon    { background: #ecfdf5; }
     .lens-card.philo .lens-discipline { color: #065f46; }
 
+    .lens-card.ubuntu .lens-header { border-left: 4px solid #f97316; }
+    .lens-card.ubuntu .lens-icon   { background: #fff7ed; }
+    .lens-card.ubuntu .lens-discipline { color: #c2410c; }
+
+    .lens-card.buddhism .lens-header { border-left: 4px solid #0d9488; }
+    .lens-card.buddhism .lens-icon   { background: #f0fdfa; }
+    .lens-card.buddhism .lens-discipline { color: #0f766e; }
+
+    .lens-card.confucian .lens-header { border-left: 4px solid #ca8a04; }
+    .lens-card.confucian .lens-icon   { background: #fefce8; }
+    .lens-card.confucian .lens-discipline { color: #854d0e; }
+
+    .lens-card.taoism .lens-header { border-left: 4px solid #16a34a; }
+    .lens-card.taoism .lens-icon   { background: #f0fdf4; }
+    .lens-card.taoism .lens-discipline { color: #166534; }
+
+    .lens-card.careethics .lens-header { border-left: 4px solid #e11d48; }
+    .lens-card.careethics .lens-icon   { background: #fff1f2; }
+    .lens-card.careethics .lens-discipline { color: #be123c; }
+
+    .lens-card.evopsych .lens-header { border-left: 4px solid #65a30d; }
+    .lens-card.evopsych .lens-icon   { background: #f7fee7; }
+    .lens-card.evopsych .lens-discipline { color: #3f6212; }
+
+    .lens-card.behavecon .lens-header { border-left: 4px solid #2563eb; }
+    .lens-card.behavecon .lens-icon   { background: #eff6ff; }
+    .lens-card.behavecon .lens-discipline { color: #1d4ed8; }
+
+    .lens-card.pheno .lens-header { border-left: 4px solid #64748b; }
+    .lens-card.pheno .lens-icon   { background: #f8fafc; }
+    .lens-card.pheno .lens-discipline { color: #334155; }
+
+    /* ── Shuffle button ── */
+    .shuffle-wrap {
+      text-align: center; margin-bottom: 36px;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-shuffle {
+      padding: 9px 28px; border-radius: 20px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      color: var(--text-sub); font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; font-family: var(--font-sans);
+      letter-spacing: 0.04em;
+    }
+    .btn-shuffle:hover { border-color: var(--accent); color: var(--accent); }
+    .shuffle-hint { font-size: 0.72rem; color: var(--text-muted); }
+
     /* ── Lens body ── */
     .lens-body {
       display: grid;
@@ -334,6 +382,11 @@
     </p>
   </div>
 
+  <div class="shuffle-wrap">
+    <button class="btn-shuffle" onclick="shuffleLenses()">🎲 視点を引き直す（4つをランダムに再選択）</button>
+    <span class="shuffle-hint">12視点のプールから異なる組み合わせを選べます</span>
+  </div>
+
   <div id="lens-panels"></div>
 
   <div class="synthesis-section">
@@ -394,18 +447,18 @@ const drawn  = JSON.parse(localStorage.getItem('pg_drawn')   || 'null');
 const steps  = JSON.parse(localStorage.getItem('pg_steps')   || '{}');
 let   compare = JSON.parse(localStorage.getItem('pg_compare') || '{}');
 
-/* ── Lens definitions ── */
-const LENSES = [
+/* ── Lens pool (12 lenses — 4 randomly selected per session) ── */
+const LENS_POOL = [
   {
     id: 'anthro', cls: 'anthro', icon: '🏛',
     discipline: '文化人類学',
-    framework:  '通過儀礼（Rites of Passage）',
-    thinker:    'A. ヴァン・ヘネップ / V. ターナー',
+    framework: '通過儀礼（Rites of Passage）',
+    thinker: 'A. ヴァン・ヘネップ / V. ターナー',
+    origin: '20世紀 フランス・イギリス',
     explanation:
-      'どの文化でも人間は「分離 → 移行（リミナリティ）→ 統合」という構造で、' +
+      'どの文化でも人間は「分離 → 移行（リミナリティ）→ 統合」という構造で' +
       'コミュニティへの帰属や社会的役割を更新してきた。' +
-      '入学・成人・結婚・就職など人生の節目には、' +
-      '「一人前」と認められるための儀礼的プロセスが存在する。' +
+      '入学・成人・結婚・就職など人生の節目には「一人前」と認められるための儀礼的プロセスが存在する。' +
       '移行期の「どちらでもない状態」こそが変容の核心とされる。',
     q1label: 'このペルソナが経験する「通過儀礼」はどのようなものか？（何をもって一人前・仲間入りとされるか）',
     q1ph:    '例：特定のスキルセットや実績ログを示すこと。複数コミュニティで信頼を積み重ねること。',
@@ -414,13 +467,14 @@ const LENSES = [
   },
   {
     id: 'myth', cls: 'myth', icon: '⚡',
-    discipline: '神話学',
-    framework:  '英雄の旅（モノミス）',
-    thinker:    'J. キャンベル',
+    discipline: '神話学・比較宗教学',
+    framework: '英雄の旅（モノミス）',
+    thinker: 'J. キャンベル',
+    origin: '20世紀 アメリカ',
     explanation:
       '世界中の神話に共通する物語構造「英雄の旅」。' +
       '日常からの出発・師との出会い・試練と死と再生・変容・帰還——' +
-      'このパターンは、人間が変化・成長・意味探索をどう物語るかを示している。' +
+      'このパターンは人間が変化・成長・意味探索をどう物語るかを示している。' +
       '現代の映画や個人の人生語りにもこの構造は生き続けている。',
     q1label: 'このペルソナにとっての「冒険への召命」と「試練」は何か？（何が境界を越えさせるか）',
     q1ph:    '例：カオス（撹乱）が「出発のきっかけ」になっている。既存の帰属や役割を手放す選択。',
@@ -429,9 +483,10 @@ const LENSES = [
   },
   {
     id: 'psych', cls: 'psych', icon: '🧠',
-    discipline: '心理学',
-    framework:  '欲求階層 / 個性化',
-    thinker:    'A. マズロー / C.G. ユング',
+    discipline: '深層心理学',
+    framework: '欲求階層 / 個性化',
+    thinker: 'A. マズロー / C.G. ユング',
+    origin: '20世紀 アメリカ・スイス',
     explanation:
       'マズローは「生理→安全→社会→承認→自己実現」の欲求階層を示した。' +
       'ユングは「影（認めたくない自己）」や「元型（英雄・賢者・トリックスター等）」が' +
@@ -444,9 +499,10 @@ const LENSES = [
   },
   {
     id: 'philo', cls: 'philo', icon: '💭',
-    discipline: '哲学',
-    framework:  'ゾーン・ポリティコン',
-    thinker:    'アリストテレス / H. アーレント',
+    discipline: '政治哲学',
+    framework: 'ゾーン・ポリティコン',
+    thinker: 'アリストテレス / H. アーレント',
+    origin: '古代ギリシャ・20世紀ドイツ/アメリカ',
     explanation:
       'アリストテレスは「人間は本性上ポリス的（社会的）動物である」と言った。' +
       'アーレントはそれを「複数性」と呼び、他者と共にいること・行為と言論・' +
@@ -457,11 +513,166 @@ const LENSES = [
     q2label: '「善く生きること（エウダイモニア）」の形はどう変わっているか。変わっていないものは何か？',
     q2ph:    '例：豊かさの基準が「所有」から「関係の質」に変わった。しかし「意味ある行為をしたい」は変わらない。',
   },
+  {
+    id: 'ubuntu', cls: 'ubuntu', icon: '🌍',
+    discipline: 'アフリカ哲学',
+    framework: 'ウブントゥ（Ubuntu）',
+    thinker: 'D. ツツ / J.S. ムビティ',
+    origin: 'サブサハラ・アフリカ',
+    explanation:
+      '「私があるのは、私たちがあるから（Umuntu ngumuntu ngabantu）」。' +
+      '自己は共同体を通じて初めて完成し、人間はコミュニティとの関係の網の目の中にのみ存在しうる。' +
+      '個人の利益より共同体の調和・相互扶助・「共にいること」が価値の中心に置かれる。' +
+      '孤独は人間性の喪失であり、他者への応答こそが自己の証明となる。',
+    q1label: 'このペルソナにとって「共同体」はどこにあるか？誰との関係が自分を「自分」にしているか？',
+    q1ph:    '例：オンラインコミュニティが「ウブントゥ的な場」になっている。ケアの交換が自己確認の手段になっている。',
+    q2label: 'この未来社会で「ウブントゥ」的な相互扶助の精神はどう変容しているか？それでも残るものは何か？',
+    q2ph:    '例：相互扶助がアルゴリズムで最適化されると精神は残るか？「共にいること」の質はどう変わるか？',
+  },
+  {
+    id: 'buddhism', cls: 'buddhism', icon: '☸️',
+    discipline: '仏教哲学',
+    framework: '縁起・無常・苦（Dependent Origination）',
+    thinker: 'ゴータマ・シッダールタ / 龍樹',
+    origin: '古代インド・紀元前5世紀',
+    explanation:
+      'すべての存在は相互依存しており（縁起）、固定した実体がない（諸行無常・空）。' +
+      'この真理を見誤ると「苦」が生まれる。執着・渇愛・無知が苦の根源であり、' +
+      '無常を受け入れ「今ここ」に注意を向けることで解放される。' +
+      '個人の境界は幻想であり、すべてはつながっている（相互依存）。',
+    q1label: 'このペルソナが「執着」しているものは何か？それが生む「苦」はどんな形で現れるか？',
+    q1ph:    '例：データ・評価記録への執着。「役割アイデンティティ」への固執。AIへの依存が生む不安。',
+    q2label: 'この社会の「無常」（急激な変化・不安定性）に、このペルソナはどう向き合っているか？',
+    q2ph:    '例：変化を受け入れる柔軟性があるか？「今ここ」に根ざすとはどういうことか？縁起の観点で見ると？',
+  },
+  {
+    id: 'confucian', cls: 'confucian', icon: '📜',
+    discipline: '儒教倫理学',
+    framework: '仁・礼・義（Ren / Li / Yi）',
+    thinker: '孔子 / 孟子',
+    origin: '古代中国・紀元前6〜4世紀',
+    explanation:
+      '「仁（思いやり・人間愛）」「礼（適切な関係・秩序）」「義（正しい行い・正義）」の徳を磨くことで関係と社会が整う。' +
+      '自己修養と社会秩序は不可分であり、人間は社会的役割（親・子・師弟）の中で徳を実践することで完成する。' +
+      '学びと自己改善は終わりなき営みであり、「日に新たに、また日に新たに」という継続的成長が重視される。',
+    q1label: 'このペルソナの生活で「礼」（適切な関係・役割・形式）はどんな形をとっているか？',
+    q1ph:    '例：複数コミュニティでの役割ルール。AIとの関係における礼儀・距離感。新しい「師弟関係」の形。',
+    q2label: '「仁（思いやり）」はこの未来社会でどのように表現・行使されているか？形が変わったものと変わらないものは？',
+    q2ph:    '例：ケアの形がデジタル化されても「仁」は残るか？承認・感謝・尊重の表現方法はどう変わったか？',
+  },
+  {
+    id: 'taoism', cls: 'taoism', icon: '☯️',
+    discipline: '道家思想',
+    framework: '無為自然（Wu Wei / Ziran）',
+    thinker: '老子 / 荘子',
+    origin: '古代中国・紀元前4〜3世紀',
+    explanation:
+      '「道（タオ）に従い、無理な作為をせず自然に流れる（無為自然）」。' +
+      '過度なコントロール・最適化・介入は物事を歪める。' +
+      '「水のように」柔軟で、抵抗するより流れることが本質。' +
+      '変化を恐れず「そうあること（自然）」を大切にする。役に立たないものこそが最も役立つことがある（有用性の逆説）。',
+    q1label: 'このペルソナが「あえてしない」ことで成立しているものは何か？「自然な流れ」とはどんなものか？',
+    q1ph:    '例：最適化しすぎないことで残る余白。AIに任せないことで保たれる何か。「不完全さ」の価値。',
+    q2label: '「最適化・管理・コントロール」への欲求と「無為」の感覚の間にある緊張をどう見るか？',
+    q2ph:    '例：AI全自動化が進む中「道に従う」とはどういうことか？効率の追求が失わせるものは何か？',
+  },
+  {
+    id: 'careethics', cls: 'careethics', icon: '💞',
+    discipline: 'フェミニスト倫理学',
+    framework: 'ケアの倫理（Ethics of Care）',
+    thinker: 'C. ギリガン / N. ノディングズ / V. ヘルド',
+    origin: '20世紀後半 アメリカ',
+    explanation:
+      '「普遍的なルールより、具体的な関係・依存・ケアの実践を倫理の中心に置く」。' +
+      'すべての人間は誰かに依存し、誰かをケアしながら生きており、その相互依存性を認めることが倫理の出発点。' +
+      '「自律した個人」は幻想であり、弱さ・依存・応答可能性（responsibility）こそが人間の本質とされる。',
+    q1label: 'このペルソナの生活でケアはどう組み込まれているか？誰がケアし、誰がケアされているか？',
+    q1ph:    '例：ケアの「見えない労働」はどこへ行ったか？AIがケアを担う時、関係性はどう変わるか？',
+    q2label: 'この未来社会では「依存すること」「助けを求めること」の意味はどう変わったか？変わっていないものは？',
+    q2ph:    '例：依存が恥ではなくなっているか？「ケアの経済」はどう機能しているか？応答可能性はどこにあるか？',
+  },
+  {
+    id: 'evopsych', cls: 'evopsych', icon: '🧬',
+    discipline: '進化心理学・社会生物学',
+    framework: '互恵的利他主義（Reciprocal Altruism）',
+    thinker: 'R. トリヴァース / R. ドーキンス',
+    origin: '20世紀後半 アメリカ・イギリス',
+    explanation:
+      '「なぜ人間は他者を助けるのか？」：進化の視点では、協力・見返り・評判の管理が種の繁栄を支える。' +
+      '信頼・互恵・評判システムにより協力行動は進化的に安定する。' +
+      '人間は「小規模なバンド（150人程度）」を前提に進化した社会的動物であり、' +
+      '大規模社会や匿名空間での協力には特別な仕組みが必要になる（ダンバー数）。',
+    q1label: 'このペルソナの社会では「協力」はどんな形で成立しているか？見返りはどう扱われているか？',
+    q1ph:    '例：評判スコア・信頼ログが協力を支える仕組み。「プロジェクト参加型」の協力はどう安定するか？',
+    q2label: '「フリーライダー問題（ただ乗り）」はこの社会でどう解決・あるいは無視されているか？',
+    q2ph:    '例：透明な記録が不正を防ぐ。それでも「搾取」はどこに移動するか？新しいただ乗りの形は？',
+  },
+  {
+    id: 'behavecon', cls: 'behavecon', icon: '⚖️',
+    discipline: '行動経済学・認知心理学',
+    framework: '損失回避 / 二重過程理論（System 1 & 2）',
+    thinker: 'D. カーネマン / A. トヴェルスキー',
+    origin: '20世紀後半 イスラエル・アメリカ',
+    explanation:
+      '「人は利益より損失を約2倍強く恐れる（損失回避）」。' +
+      'また意思決定には速くて直感的な「システム1」と遅くて論理的な「システム2」があり、' +
+      '多くの判断は無意識のシステム1が担う。' +
+      '合理的に見えても、人間の行動は認知バイアス・ヒューリスティクス・フレーミングに大きく左右される。',
+    q1label: 'このペルソナが強く恐れている「損失」は何か？その恐れは行動をどう歪めているか？',
+    q1ph:    '例：評判・コミュニティ所属の「喪失」。AIに決定権を渡すことへの抵抗。自律性の喪失への恐怖。',
+    q2label: 'このペルソナの意思決定で「直感（システム1）」と「論理（システム2）」はどう使い分けられているか？',
+    q2ph:    '例：AIがシステム2を代替する時、人間の判断はどう変わるか？バイアスはどこに残り続けるか？',
+  },
+  {
+    id: 'pheno', cls: 'pheno', icon: '👁️',
+    discipline: '現象学・実存哲学',
+    framework: '身体化された実存（Being-in-the-world）',
+    thinker: 'M. ハイデガー / M. メルロ＝ポンティ',
+    origin: '20世紀 ドイツ・フランス',
+    explanation:
+      '「人間は世界に投げ込まれた存在（現存在）。身体を通じて世界を知覚し、道具や環境と一体となって生きている（道具存在）」。' +
+      '意識は頭の中にあるのではなく、身体・環境・他者との関わりの中にある。' +
+      '技術は単なる道具ではなく、人間の存在様式そのものを変える——' +
+      '「手に馴染んだ道具」になった技術は意識から消え、存在の一部になる。',
+    q1label: 'このペルソナにとって「当たり前にある世界（環境・道具・身体習慣）」はどんな形か？',
+    q1ph:    '例：AIが「手に馴染んだ道具」になっている状態。デジタル・物理が融合した身体感覚。常時接続の体感。',
+    q2label: '身体・環境・AIの境界が変わることで、「存在すること」「ここにいること」の感覚はどう変化しているか？',
+    q2ph:    '例：場所感覚の変容。「リアルな体験」の定義の変化。身体の延長としての技術が生む新しい自己感覚。',
+  },
 ];
+
+/* ── Selected lenses (4 from pool per session) ── */
+let selectedLenses = [];
+
+function pickLenses(saved) {
+  if (saved && saved.length === 4) {
+    const resolved = saved.map(id => LENS_POOL.find(l => l.id === id)).filter(Boolean);
+    if (resolved.length === 4) return resolved;
+  }
+  // random pick — Fisher-Yates on copy
+  const pool = [...LENS_POOL];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, 4);
+}
+
+function shuffleLenses() {
+  if (!confirm('視点を引き直します。現在の記入内容はリセットされます。よろしいですか？')) return;
+  // clear lens entries in compare
+  selectedLenses.forEach(l => { delete compare[l.id]; });
+  compare.selectedLensIds = null;
+  selectedLenses = pickLenses(null);
+  compare.selectedLensIds = selectedLenses.map(l => l.id);
+  renderLenses();
+  saveAll();
+}
 
 /* ── Render ── */
 window.addEventListener('DOMContentLoaded', () => {
   renderPersonaStrip();
+  selectedLenses = pickLenses(compare.selectedLensIds);
   renderLenses();
   restoreAll();
   startSync();
@@ -506,7 +717,7 @@ function renderPersonaStrip() {
 }
 
 function renderLenses() {
-  document.getElementById('lens-panels').innerHTML = LENSES.map(l => `
+  document.getElementById('lens-panels').innerHTML = selectedLenses.map(l => `
     <div class="lens-card ${l.cls}">
       <div class="lens-header">
         <div class="lens-icon">${l.icon}</div>
@@ -514,7 +725,7 @@ function renderLenses() {
           <div class="lens-discipline">${esc(l.discipline)}</div>
           <div class="lens-framework">${esc(l.framework)}</div>
         </div>
-        <div class="lens-thinker">${esc(l.thinker)}</div>
+        <div class="lens-thinker">${esc(l.thinker)}<br><span style="opacity:.7">${esc(l.origin)}</span></div>
       </div>
       <div class="lens-body">
         <div class="lens-explanation">
@@ -538,7 +749,8 @@ function renderLenses() {
 /* ── Save / Restore ── */
 function saveAll() {
   compare = {};
-  LENSES.forEach(l => {
+  compare.selectedLensIds = selectedLenses.map(l => l.id);
+  selectedLenses.forEach(l => {
     compare[l.id] = { q1: val(`${l.id}-q1`), q2: val(`${l.id}-q2`) };
   });
   compare.synthesis = { change: val('syn-change'), constant: val('syn-constant') };
@@ -578,13 +790,18 @@ function shareNow() {
 }
 
 function applyRemoteCompare(r) {
+  // if remote has different lens selection, re-render
+  if (r.selectedLensIds && JSON.stringify(r.selectedLensIds) !== JSON.stringify(compare.selectedLensIds)) {
+    selectedLenses = pickLenses(r.selectedLensIds);
+    renderLenses();
+  }
   Object.assign(compare, r);
   localStorage.setItem('pg_compare', JSON.stringify(compare));
   const sync = (id, v) => {
     const el = document.getElementById(id);
     if (el && el !== document.activeElement) el.value = v || '';
   };
-  LENSES.forEach(l => {
+  selectedLenses.forEach(l => {
     if (r[l.id]) { sync(`${l.id}-q1`, r[l.id].q1); sync(`${l.id}-q2`, r[l.id].q2); }
   });
   if (r.synthesis) { sync('syn-change', r.synthesis.change); sync('syn-constant', r.synthesis.constant); }
@@ -592,7 +809,7 @@ function applyRemoteCompare(r) {
 }
 
 function restoreAll() {
-  LENSES.forEach(l => {
+  selectedLenses.forEach(l => {
     if (compare[l.id]) {
       set(`${l.id}-q1`, compare[l.id].q1);
       set(`${l.id}-q2`, compare[l.id].q2);
