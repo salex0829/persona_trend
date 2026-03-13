@@ -392,6 +392,38 @@
     }
     @keyframes syncPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 
+    /* ── Key decision field ── */
+    .key-field {
+      background: var(--accent-light);
+      border: 1.5px solid var(--accent);
+      border-radius: 12px;
+      padding: 14px 16px 16px;
+      margin-bottom: 22px;
+    }
+    .key-field label {
+      color: var(--accent) !important;
+      font-weight: 700 !important;
+    }
+    .key-field input[type="text"],
+    .key-field textarea {
+      border-color: var(--accent);
+      background: var(--surface);
+    }
+    .key-field-hint {
+      font-size: 0.68rem; color: var(--accent);
+      margin-bottom: 8px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    /* ── Ref card example note ── */
+    .ref-example-badge {
+      display: inline-block;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; margin-bottom: 4px;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 680px) {
       .pane-cols { grid-template-columns: 1fr; gap: 24px; }
@@ -445,8 +477,8 @@
     <div class="step-badge">Step 1 / 3</div>
     <h2>価値観の転換を考える</h2>
     <p class="step-desc">
-      この環境の中で生きる人は、何を重視するようになるか。<br>
-      引いた価値観カードをヒントに、内面の規範を探りましょう。
+      この時代・環境を生きる人は、何を重視するようになるか。<br>
+      左の参考カードをヒントに、グループで「この未来人の価値観」を自由に決めましょう。
     </p>
   </div>
 
@@ -480,6 +512,11 @@
 
     <!-- Right: input fields -->
     <div class="pane-right">
+      <div class="key-field field-group">
+        <div class="key-field-hint">▶ グループで決める</div>
+        <label>この時代を生きる人の価値観キーワード</label>
+        <input type="text" id="s2-valuecore" placeholder="例：回復、余白、複数の居場所、自律と協調...">
+      </div>
       <div class="field-group">
         <label>この環境で生きる人にとって、何が「安心」か</label>
         <textarea id="s2-q1" rows="3" placeholder="例：記録が残ること。変えられること。誰かとつながっていること。"></textarea>
@@ -529,7 +566,7 @@
     <h2>日常を書く</h2>
     <p class="step-desc">
       この価値観を持つ人の、ある1日を想像して書いてみましょう。<br>
-      生活領域カードのテーマを軸に、具体的な行動を描きます。
+      左の参考カードをヒントに、グループでこの未来人が生きる生活シーンを自由に決めましょう。
     </p>
   </div>
 
@@ -568,6 +605,11 @@
 
     <!-- Right: input fields -->
     <div class="pane-right">
+      <div class="key-field field-group">
+        <div class="key-field-hint">▶ グループで決める</div>
+        <label>この未来人が特に注目する生活シーン・領域</label>
+        <input type="text" id="s3-lifefocus" placeholder="例：仕事のプロジェクト化、育児のデジタル化、学び直しの日常化...">
+      </div>
       <div class="field-group">
         <label>朝起きて最初に何をするか</label>
         <textarea id="s3-d1" rows="3" placeholder="例：体調ログを確認し、AIに今日の優先順位を提案してもらう。"></textarea>
@@ -585,8 +627,8 @@
         <textarea id="s3-d4" rows="3" placeholder="例：長い承認プロセス。経緯の見えない意思決定。"></textarea>
       </div>
       <div class="field-group">
-        <label>引いたカオス（撹乱）によって、日常のどこに変化が生まれたか</label>
-        <textarea id="s3-d5" rows="3" placeholder="例：感染症の流行後、近所の人と助け合う仕組みが自然にできていた。外出に許可や確認が必要になった。"></textarea>
+        <label>この時代のテクスチャー（予想外の文脈）によって、日常のどこに変化が生まれたか</label>
+        <textarea id="s3-d5" rows="3" placeholder="例：静けさが贅沢になり、あえて無接続の時間をつくるようになった。"></textarea>
       </div>
     </div>
   </div>
@@ -782,16 +824,17 @@ window.addEventListener('DOMContentLoaded', () => {
 /* ── Populate reference cards ── */
 function populateRefCards() {
   setCard('driver-social', drawn.social, 'social', '社会変化');
-  setCard('driver-chaos',  drawn.chaos,  'chaos',  'カオス（撹乱）');
+  setCard('driver-chaos',  drawn.chaos,  'chaos',  '時代テクスチャー');
   setCard('ref-value',     drawn.value,  'value',  '価値観');
   setCard('ref-life',      drawn.life,   'life',   '生活領域');
-  setCard('ref-chaos2',    drawn.chaos,  'chaos',  'カオス（撹乱）');
+  setCard('ref-chaos2',    drawn.chaos,  'chaos',  '時代テクスチャー');
 }
 
 function setCard(id, card, cls, label) {
   const el = document.getElementById(id);
   if (!el || !card) return;
   el.innerHTML = `
+    <div class="ref-example-badge">参考例</div>
     <div class="ref-card-cat">${label}</div>
     <div class="ref-card-title">${esc(card.title)}</div>
     <div class="ref-card-desc">${esc(card.desc)}</div>`;
@@ -824,13 +867,14 @@ function appendExtraCard(card, animate) {
 /* ── Auto-populate Step 3 period ── */
 function autoPopulatePeriod() {
   const trends = JSON.parse(localStorage.getItem('pg_trends') || 'null');
+  const valuecore = val('s2-valuecore') || drawn.value.title;
   let text = '';
   if (trends) {
     text += `【メガトレンド】${trends.mega.title}が進む時代。`;
     text += `【ミドルトレンド】${trends.mid.title}が普及しつつある。\n`;
   }
   text += `${drawn.social.title}が当たり前になり、${drawn.chaos.title}という状況の中で、`;
-  text += `人々の「${drawn.value.title}」への意識が高まっている。`;
+  text += `人々の「${valuecore}」への意識が高まっている。`;
   document.getElementById('f-period').value = text;
 }
 
@@ -850,6 +894,7 @@ function updatePrevSummary(n) {
 
   // Step 1 — 価値観の転換 (for steps 2 and 3)
   const items1 = [
+    makeItem('価値観キーワード', val('s2-valuecore')),
     makeItem('何が「安心」か', val('s2-q1')),
     makeItem('何が「恥ずかしい・古い」か', val('s2-q2')),
     makeItem('「豊か」な時間の使い方', val('s2-q3')),
@@ -865,11 +910,12 @@ function updatePrevSummary(n) {
   // Step 2 — 日常 (for step 3)
   if (n >= 3) {
     const items2 = [
+      makeItem('生活シーンキーワード', val('s3-lifefocus')),
       makeItem('朝起きて最初に何をするか', val('s3-d1')),
       makeItem('どんな相手と意思決定するか', val('s3-d2')),
       makeItem('移動・買い物・学習・ケア', val('s3-d3')),
       makeItem('何を煩わしいと思うか', val('s3-d4')),
-      makeItem('カオスによる日常の変化', val('s3-d5')),
+      makeItem('時代のテクスチャーによる変化', val('s3-d5')),
     ].join('');
     if (items2) {
       html += `<div class="prev-summary-section">
@@ -924,8 +970,8 @@ function goToStep(n) {
 
 /* ── Persist data ── */
 function saveAll() {
-  steps.step2 = { q1: val('s2-q1'), q2: val('s2-q2'), q3: val('s2-q3'), q4: val('s2-q4'), discuss: val('s2-discuss') };
-  steps.step3 = { d1: val('s3-d1'), d2: val('s3-d2'), d3: val('s3-d3'), d4: val('s3-d4'), d5: val('s3-d5'), discuss: val('s3-discuss') };
+  steps.step2 = { valuecore: val('s2-valuecore'), q1: val('s2-q1'), q2: val('s2-q2'), q3: val('s2-q3'), q4: val('s2-q4'), discuss: val('s2-discuss') };
+  steps.step3 = { lifefocus: val('s3-lifefocus'), d1: val('s3-d1'), d2: val('s3-d2'), d3: val('s3-d3'), d4: val('s3-d4'), d5: val('s3-d5'), discuss: val('s3-discuss') };
   steps.step4 = {
     name: val('f-name'), age: val('f-age'), period: val('f-period'),
     values: val('f-values'), behaviors: val('f-behaviors'),
@@ -985,11 +1031,13 @@ function applyRemoteSteps(r) {
     if (el && el !== document.activeElement) el.value = v || '';
   };
   if (r.step2) {
+    sync('s2-valuecore', r.step2.valuecore);
     sync('s2-q1', r.step2.q1); sync('s2-q2', r.step2.q2);
     sync('s2-q3', r.step2.q3); sync('s2-q4', r.step2.q4);
     sync('s2-discuss', r.step2.discuss);
   }
   if (r.step3) {
+    sync('s3-lifefocus', r.step3.lifefocus);
     sync('s3-d1', r.step3.d1); sync('s3-d2', r.step3.d2);
     sync('s3-d3', r.step3.d3); sync('s3-d4', r.step3.d4);
     sync('s3-d5', r.step3.d5); sync('s3-discuss', r.step3.discuss);
@@ -1007,11 +1055,13 @@ function applyRemoteCompare() { /* compare.html 側で処理 */ }
 
 function restoreAll() {
   if (steps.step2) {
+    set('s2-valuecore', steps.step2.valuecore);
     set('s2-q1', steps.step2.q1); set('s2-q2', steps.step2.q2);
     set('s2-q3', steps.step2.q3); set('s2-q4', steps.step2.q4);
     set('s2-discuss', steps.step2.discuss);
   }
   if (steps.step3) {
+    set('s3-lifefocus', steps.step3.lifefocus);
     set('s3-d1', steps.step3.d1); set('s3-d2', steps.step3.d2);
     set('s3-d3', steps.step3.d3); set('s3-d4', steps.step3.d4);
     set('s3-d5', steps.step3.d5); set('s3-discuss', steps.step3.discuss);
