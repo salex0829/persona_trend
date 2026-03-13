@@ -462,6 +462,28 @@
       letter-spacing: 0.06em; text-transform: uppercase;
     }
 
+    /* ── お題カード（時代テクスチャー） ── */
+    .odai-card {
+      background: #fdf2f8;
+      border: 2px solid var(--c-chaos);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .odai-label {
+      font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--c-chaos); margin-bottom: 6px;
+    }
+    .odai-title {
+      font-family: var(--font-serif); font-size: 1.1rem;
+      font-weight: 700; color: var(--text);
+      margin-bottom: 6px; line-height: 1.45;
+    }
+    .odai-desc {
+      font-size: 0.82rem; color: var(--text-sub); line-height: 1.7;
+    }
+
     /* ── Ref card example note ── */
     .ref-example-badge {
       display: inline-block;
@@ -684,6 +706,8 @@
     </p>
   </div>
 
+  <div id="odai-chaos" class="odai-card" style="display:none"></div>
+
   <div class="timer-bar" id="timer-bar-2">
     <span class="timer-label">⏱ タイマー</span>
     <div class="timer-presets">
@@ -701,8 +725,7 @@
   <div class="pane-cols">
     <!-- Left: reference cards + examples -->
     <div class="pane-left">
-      <div id="ref-life"   class="ref-card life"></div>
-      <div id="ref-chaos2" class="ref-card chaos"></div>
+      <div id="ref-life" class="ref-card life"></div>
 
       <div id="prev-summary-2" style="display:none"></div>
 
@@ -966,11 +989,22 @@ if (roomInfo) {
 /* ── Populate reference cards ── */
 function populateRefCards() {
   renderTrendsContext();
+  renderOdaiChaos();
   setCard('driver-social', drawn.social, 'social', '社会変化');
   setCard('driver-chaos',  drawn.chaos,  'chaos',  '時代テクスチャー');
   setCard('ref-value',     drawn.value,  'value',  '価値観');
   setCard('ref-life',      drawn.life,   'life',   '生活領域');
-  setCard('ref-chaos2',    drawn.chaos,  'chaos',  '時代テクスチャー');
+}
+
+/* ── お題カード（時代テクスチャー） ── */
+function renderOdaiChaos() {
+  const el = document.getElementById('odai-chaos');
+  if (!el || !drawn.chaos) return;
+  el.innerHTML =
+    '<div class="odai-label">お題 — 時代テクスチャー</div>' +
+    '<div class="odai-title">' + esc(drawn.chaos.title) + '</div>' +
+    '<div class="odai-desc">' + esc(drawn.chaos.desc) + '</div>';
+  el.style.display = 'block';
 }
 
 /* ── Render trends context block (Step 1) ── */
