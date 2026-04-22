@@ -230,6 +230,12 @@
     }
     .btn-all:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(92,80,214,0.36); }
     .btn-all:active { transform: scale(0.97); }
+    .btn-all:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    .roll-counter {
+      margin-top: 10px;
+      font-size: 0.8rem; color: var(--text-sub); letter-spacing: 0.04em;
+    }
+    .roll-counter.exhausted { color: #dc2626; font-weight: 600; }
 
     /* Summary & next */
     .summary-panel {
@@ -383,7 +389,8 @@
 
 <!-- Roll all -->
 <div class="roll-all-wrap">
-  <button class="btn-all" onclick="rollAll()">両方を引く</button>
+  <button class="btn-all" id="btn-all" onclick="rollAll()">両方を引く</button>
+  <div class="roll-counter" id="roll-counter">残り 5 回</div>
 </div>
 
 <!-- Trend panels -->
@@ -405,7 +412,7 @@
       <div class="principle-label">Universal Principle</div>
       <div class="principle-text" id="principle-mega-text"></div>
     </div>
-    <button class="btn-roll" onclick="roll('mega')">引く</button>
+    <button class="btn-roll" onclick="roll('mega', null, true)">引く</button>
   </div>
 
   <!-- Middle-trend -->
@@ -424,7 +431,7 @@
       <div class="principle-label">Universal Principle</div>
       <div class="principle-text" id="principle-mid-text"></div>
     </div>
-    <button class="btn-roll" onclick="roll('mid')">引く</button>
+    <button class="btn-roll" onclick="roll('mid', null, true)">引く</button>
   </div>
 
 </div>
@@ -816,11 +823,31 @@ function saveTrends() {
 }
 
 // ── Gacha logic ──────────────────────────────────────────────────────
+const MAX_ROLLS = 5;
+let rollCount = 0;
 const drawnTrends = { mega: null, mid: null };
 
 function pickRandom(arr) { return Math.floor(Math.random() * arr.length); }
 
-function roll(type, done) {
+function updateRollCounter() {
+  const remaining = MAX_ROLLS - rollCount;
+  const el     = document.getElementById('roll-counter');
+  const allBtn = document.getElementById('btn-all');
+  if (el) {
+    el.textContent = remaining > 0 ? `残り ${remaining} 回` : 'これ以上引けません';
+    el.classList.toggle('exhausted', remaining <= 0);
+  }
+  const disabled = remaining <= 0;
+  if (allBtn) allBtn.disabled = disabled;
+  document.querySelectorAll('.btn-roll').forEach(b => b.disabled = disabled);
+}
+
+function roll(type, done, _fromButton = false) {
+  if (_fromButton) {
+    if (rollCount >= MAX_ROLLS) return;
+    rollCount++;
+    updateRollCounter();
+  }
   const panel   = document.getElementById(`panel-${type}`);
   const display = document.getElementById(`display-${type}`);
   const pBlock  = document.getElementById(`principle-${type}`);
@@ -868,6 +895,9 @@ function renderCard(type, card) {
 }
 
 function rollAll() {
+  if (rollCount >= MAX_ROLLS) return;
+  rollCount++;
+  updateRollCounter();
   // メガを引いてから、関連するミドルを引く
   roll('mega', () => setTimeout(() => roll('mid'), 120));
 }
