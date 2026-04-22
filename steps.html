@@ -819,10 +819,6 @@
         <label>何を煩わしいと思うか</label>
         <textarea id="s3-d4" rows="3" placeholder="例：根拠のない同調圧力。一つの生き方への誘導。意味の見えない定型業務。"></textarea>
       </div>
-      <div class="field-group">
-        <label>この時代のテクスチャー（予想外の文脈）によって、日常のどこに変化が生まれたか</label>
-        <textarea id="s3-d5" rows="3" placeholder="例：就職活動がオンライン完結になり、地方にいながら都市の企業を受けるのが当たり前になった。"></textarea>
-      </div>
     </div>
   </div>
 
@@ -1162,7 +1158,6 @@ function updatePrevSummary(n) {
       makeItem('どんな相手と意思決定するか', val('s3-d2')),
       makeItem('移動・買い物・学習・ケア', val('s3-d3')),
       makeItem('何を煩わしいと思うか', val('s3-d4')),
-      makeItem('時代のテクスチャーによる変化', val('s3-d5')),
     ].join('');
     if (items2) {
       html += `<div class="prev-summary-section">
@@ -1218,7 +1213,7 @@ function goToStep(n) {
 /* ── Persist data ── */
 function saveAll() {
   steps.step2 = { valuecore: val('s2-valuecore'), q1: val('s2-q1'), q2: val('s2-q2'), q3: val('s2-q3'), q4: val('s2-q4'), discuss: val('s2-discuss') };
-  steps.step3 = { lifefocus: val('s3-lifefocus'), d1: val('s3-d1'), d2: val('s3-d2'), d3: val('s3-d3'), d4: val('s3-d4'), d5: val('s3-d5'), discuss: val('s3-discuss') };
+  steps.step3 = { lifefocus: val('s3-lifefocus'), d1: val('s3-d1'), d2: val('s3-d2'), d3: val('s3-d3'), d4: val('s3-d4'), discuss: val('s3-discuss') };
   steps.step4 = {
     name: val('f-name'), age: val('f-age'), period: val('f-period'),
     values: val('f-values'), behaviors: val('f-behaviors'),
@@ -1287,7 +1282,7 @@ function applyRemoteSteps(r) {
     sync('s3-lifefocus', r.step3.lifefocus);
     sync('s3-d1', r.step3.d1); sync('s3-d2', r.step3.d2);
     sync('s3-d3', r.step3.d3); sync('s3-d4', r.step3.d4);
-    sync('s3-d5', r.step3.d5); sync('s3-discuss', r.step3.discuss);
+    sync('s3-discuss', r.step3.discuss);
   }
   if (r.step4) {
     sync('f-name', r.step4.name);         sync('f-age', r.step4.age);
@@ -1311,7 +1306,7 @@ function restoreAll() {
     set('s3-lifefocus', steps.step3.lifefocus);
     set('s3-d1', steps.step3.d1); set('s3-d2', steps.step3.d2);
     set('s3-d3', steps.step3.d3); set('s3-d4', steps.step3.d4);
-    set('s3-d5', steps.step3.d5); set('s3-discuss', steps.step3.discuss);
+    set('s3-discuss', steps.step3.discuss);
   }
   if (steps.step4) {
     set('f-name', steps.step4.name);   set('f-age', steps.step4.age);
