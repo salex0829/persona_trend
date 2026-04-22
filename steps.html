@@ -748,8 +748,6 @@
     </div>
   </div>
 
-  <div id="odai-chaos" class="odai-card" style="display:none"></div>
-
   <div class="timer-bar" id="timer-bar-2">
     <span class="timer-label">⏱ タイマー</span>
     <div class="timer-presets">
@@ -1027,23 +1025,12 @@ if (roomInfo) {
 /* ── Populate reference cards ── */
 function populateRefCards() {
   renderTrendsContext();
-  renderOdaiChaos();
   setCard('driver-social', drawn.social, 'social', '社会変化');
   setCard('driver-chaos',  drawn.chaos,  'chaos',  '時代テクスチャー');
   setCard('ref-value',     drawn.value,  'value',  '価値観');
   setCard('ref-life',      drawn.life,   'life',   '生活領域');
 }
 
-/* ── お題カード（時代テクスチャー） ── */
-function renderOdaiChaos() {
-  const el = document.getElementById('odai-chaos');
-  if (!el || !drawn.chaos) return;
-  el.innerHTML =
-    '<div class="odai-label">お題 — 時代テクスチャー</div>' +
-    '<div class="odai-title">' + esc(drawn.chaos.title) + '</div>' +
-    '<div class="odai-desc">' + esc(drawn.chaos.desc) + '</div>';
-  el.style.display = 'block';
-}
 
 /* ── Render trends context block (Step 1) ── */
 function renderTrendsContext() {
