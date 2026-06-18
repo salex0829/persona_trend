@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>年代を選ぶ — 未来人ペルソナ探索ツール</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f8f7f4;
+      --surface: #ffffff;
+      --accent: #5c50d6;
+      --accent-light: #ede9ff;
+      --accent-faded: #ddd8f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6b6b6b;
+      --text-muted: #a0a0a0;
+      --border: #e8e6e0;
+      --font-serif: 'Shippori Mincho', serif;
+      --font-sans: 'Noto Sans JP', sans-serif;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      background-color: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────────── */
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-link {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .nav-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* ─── MAIN ────────────────────────────────────────────── */
+
+    .page-main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 64px 24px 96px;
+    }
+
+    .page-header {
+      margin-bottom: 56px;
+    }
+
+    .page-tag {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      font-size: 0.6875rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      line-height: 1.35;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .page-desc {
+      font-family: var(--font-sans);
+      font-weight: 300;
+      font-size: 0.9375rem;
+      line-height: 1.85;
+      color: var(--text-secondary);
+      max-width: 560px;
+    }
+
+    /* ─── CARDS GRID ──────────────────────────────────────── */
+
+    .age-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .age-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 24px 32px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+    }
+
+    .age-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(92, 80, 214, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .age-card.selected {
+      border-color: var(--accent);
+      background: #fdfcff;
+      box-shadow: 0 4px 24px rgba(92, 80, 214, 0.16);
+    }
+
+    .age-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .card-num {
+      font-family: var(--font-sans);
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .card-age {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.8125rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .card-name {
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 1.0625rem;
+      line-height: 1.45;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+    }
+
+    .card-divider {
+      width: 24px;
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 14px;
+    }
+
+    .card-desc {
+      font-family: var(--font-sans);
+      font-weight: 300;
+      font-size: 0.8125rem;
+      line-height: 1.75;
+      color: var(--text-secondary);
+    }
+
+    /* ─── ACTION ──────────────────────────────────────────── */
+
+    .action-row {
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--accent);
+      color: #ffffff;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      font-size: 0.9375rem;
+      text-decoration: none;
+      padding: 14px 36px;
+      border-radius: 100px;
+      letter-spacing: 0.03em;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, opacity 0.15s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #4b40c4;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .action-hint {
+      font-family: var(--font-sans);
+      font-weight: 300;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────────── */
+
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-name {
+      font-family: var(--font-serif);
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .footer-link {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .footer-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* ─── RESPONSIVE ──────────────────────────────────────── */
+
+    @media (max-width: 900px) {
+      .age-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .page-main {
+        padding: 48px 16px 72px;
+      }
+
+      .age-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .page-header {
+        margin-bottom: 40px;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a href="top.html" class="nav-logo">未来人ペルソナ探索ツール</a>
+      <a href="admin.html" class="nav-link">ファシリテーター画面</a>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="page-main">
+    <header class="page-header">
+      <span class="page-tag">Step 0 — Age Group</span>
+      <h1 class="page-title">どの年代の未来人を<br>想像しますか？</h1>
+      <p class="page-desc">ペルソナが生きる年代を選んでください。年代によって、トレンドの受け取り方や価値観の文脈が変わります。</p>
+    </header>
+
+    <div class="age-grid" id="ageGrid">
+
+      <button class="age-card" data-age="1" data-label="0歳〜6歳" onclick="selectAge(this)">
+        <div class="card-num">① 0歳〜6歳</div>
+        <div class="card-name">わたしが世界を知る<br>前の未来</div>
+        <div class="card-divider"></div>
+        <div class="card-desc">人が最初に身につける「認知・感性」の未来</div>
+      </button>
+
+      <button class="age-card" data-age="2" data-label="7歳〜18歳" onclick="selectAge(this)">
+        <div class="card-num">② 7歳〜18歳</div>
+        <div class="card-name">自我形成と対人関係<br>の変化</div>
+        <div class="card-divider"></div>
+        <div class="card-desc">学童〜思春期：価値観・承認・コミュニケーションの未来</div>
+      </button>
+
+      <button class="age-card" data-age="3" data-label="18歳〜30歳" onclick="selectAge(this)">
+        <div class="card-num">③ 18歳〜30歳</div>
+        <div class="card-name">社会参入と役割獲得<br>の変化</div>
+        <div class="card-divider"></div>
+        <div class="card-desc">はたらき方・キャリア選択の未来</div>
+      </button>
+
+      <button class="age-card" data-age="4" data-label="30歳〜50歳" onclick="selectAge(this)">
+        <div class="card-num">④ 30歳〜50歳</div>
+        <div class="card-name">親密圏とコミュニティ<br>構造の再編</div>
+        <div class="card-divider"></div>
+        <div class="card-desc">家族・つながり・生活共同体の未来</div>
+      </button>
+
+      <button class="age-card" data-age="5" data-label="50歳〜70歳" onclick="selectAge(this)">
+        <div class="card-num">⑤ 50歳〜70歳</div>
+        <div class="card-name">身体・働き方・役割<br>の再構築</div>
+        <div class="card-divider"></div>
+        <div class="card-desc">成熟・再挑戦・健康観の未来</div>
+      </button>
+
+      <button class="age-card" data-age="6" data-label="70歳〜" onclick="selectAge(this)">
+        <div class="card-num">⑥ 70歳〜</div>
+        <div class="card-name">終末・継承・<br>"残り方"のデザイン</div>
+        <div class="card-divider"></div>
+        <div class="card-desc">死生観・アフターライフの未来</div>
+      </button>
+
+    </div>
+
+    <div class="action-row">
+      <button class="btn-primary" id="nextBtn" disabled onclick="goNext()">
+        この年代で始める →
+      </button>
+      <span class="action-hint" id="actionHint">年代を選ぶと次へ進めます</span>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-name">未来人ペルソナ探索ツール</span>
+      <a href="admin.html" class="footer-link">ファシリテーター画面</a>
+    </div>
+  </footer>
+
+  <script>
+    let selectedAge = null;
+    let selectedLabel = null;
+
+    function selectAge(card) {
+      // Deselect previous
+      document.querySelectorAll('.age-card').forEach(c => c.classList.remove('selected'));
+
+      // Select clicked
+      card.classList.add('selected');
+      selectedAge = card.dataset.age;
+      selectedLabel = card.dataset.label;
+
+      // Enable button
+      const btn = document.getElementById('nextBtn');
+      const hint = document.getElementById('actionHint');
+      btn.disabled = false;
+      hint.textContent = selectedLabel + ' を選択中';
+    }
+
+    function goNext() {
+      if (!selectedAge) return;
+      sessionStorage.setItem('ageGroup', selectedAge);
+      sessionStorage.setItem('ageLabel', selectedLabel);
+      window.location.href = 'trends.html';
+    }
+  </script>
+
+</body>
+</html>
