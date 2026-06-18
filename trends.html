@@ -363,8 +363,8 @@
   <div class="page-step">Step 0 of 5 — Context</div>
   <h1>トレンドを引く</h1>
   <p class="subtitle">
-    2つのトレンドが、これから生まれるペルソナが生きる世界の文脈をつくる。<br>
-    メガトレンドは社会構造の変化、ミドルトレンドはそれに伴う技術的変化。
+    2つのカードが、ペルソナが生きる世界の文脈をつくる。<br>
+    「社会の大きな流れ」は10〜30年スケールの社会・経済の変化。「テクノロジーの変化」はそこで広がる技術・サービスの具体的な変化。
   </p>
 </div>
 
@@ -401,15 +401,15 @@
     <div class="panel-header">
       <div class="panel-icon">🌍</div>
       <div>
-        <div class="panel-type">Mega Trend</div>
-        <div class="panel-name">メガトレンド</div>
+        <div class="panel-type">10〜30年スケールの変化</div>
+        <div class="panel-name">社会の大きな流れ</div>
       </div>
     </div>
     <div class="card-display" id="display-mega">
       <div class="card-empty">— カードを引いてください —</div>
     </div>
     <div class="principle-block" id="principle-mega">
-      <div class="principle-label">Universal Principle</div>
+      <div class="principle-label">この時代の行動原理</div>
       <div class="principle-text" id="principle-mega-text"></div>
     </div>
     <button class="btn-roll" onclick="roll('mega', null, true)">引く</button>
@@ -420,15 +420,15 @@
     <div class="panel-header">
       <div class="panel-icon">⚙️</div>
       <div>
-        <div class="panel-type">Middle Trend</div>
-        <div class="panel-name">ミドルトレンド</div>
+        <div class="panel-type">5〜10年で広がる変化</div>
+        <div class="panel-name">テクノロジーの変化</div>
       </div>
     </div>
     <div class="card-display" id="display-mid">
       <div class="card-empty">— カードを引いてください —</div>
     </div>
     <div class="principle-block" id="principle-mid">
-      <div class="principle-label">Universal Principle</div>
+      <div class="principle-label">この時代の行動原理</div>
       <div class="principle-text" id="principle-mid-text"></div>
     </div>
     <button class="btn-roll" onclick="roll('mid', null, true)">引く</button>
@@ -914,7 +914,7 @@ function updateSummary() {
     return;
   }
 
-  const typeLabels = { mega: 'Mega Trend', mid: 'Middle Trend' };
+  const typeLabels = { mega: '社会の大きな流れ', mid: 'テクノロジーの変化' };
   row.innerHTML = Object.entries(drawnTrends).map(([type, card]) => `
     <div class="summary-item ${type}">
       <div class="summary-type">${typeLabels[type]}</div>

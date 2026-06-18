@@ -1306,8 +1306,8 @@ function renderTrendsContext() {
     if (!trends || !trends.mega || !trends.mid) return;
 
     const items = [
-      { type: 'mega', label: 'Mega Trend', data: trends.mega },
-      { type: 'mid',  label: 'Middle Trend', data: trends.mid },
+      { type: 'mega', label: '社会の大きな流れ', data: trends.mega },
+      { type: 'mid',  label: 'テクノロジーの変化', data: trends.mid },
     ];
 
     el.innerHTML = `<div class="trends-context-label">選んだトレンド（背景文脈）</div>` +
@@ -1363,8 +1363,8 @@ function autoPopulatePeriod() {
   const valuecore = val('s2-valuecore') || drawn.value.title;
   let text = '';
   if (trends) {
-    text += `【メガトレンド】${trends.mega.title}が進む時代。`;
-    text += `【ミドルトレンド】${trends.mid.title}が普及しつつある。\n`;
+    text += `【社会の大きな流れ】${trends.mega.title}が進む時代。`;
+    text += `【テクノロジーの変化】${trends.mid.title}が普及しつつある。\n`;
   }
   text += `${drawn.social.title}が当たり前になり、${drawn.chaos.title}という状況の中で、`;
   text += `人々の「${valuecore}」への意識が高まっている。`;
