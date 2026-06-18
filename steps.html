@@ -693,23 +693,23 @@
     <div class="pane-right">
       <div class="key-field field-group">
         <div class="key-field-hint">▶ グループで決める</div>
-        <label>この時代を生きる人の価値観キーワード</label>
+        <label data-age-template="この時代を生きる{age}の価値観キーワード">この時代を生きる人の価値観キーワード</label>
         <input type="text" id="s2-valuecore" placeholder="例：自由と安定の両立、承認より自己肯定、ゆるいつながり、複数の顔を持つ...">
       </div>
       <div class="field-group">
-        <label>この環境で生きる人にとって、何が「安心」か</label>
+        <label data-age-template="{age}にとって、何が「安心」か">この環境で生きる人にとって、何が「安心」か</label>
         <textarea id="s2-q1" rows="3" placeholder="例：複数の居場所があること。いつでも選択肢があること。ゆるくつながれる友人がいること。"></textarea>
       </div>
       <div class="field-group">
-        <label>何が「恥ずかしい」「古い」と感じられるか</label>
+        <label data-age-template="{age}にとって、何が「恥ずかしい」「古い」か">何が「恥ずかしい」「古い」と感じられるか</label>
         <textarea id="s2-q2" rows="3" placeholder="例：一社にしがみつくこと。SNSで自分を作りすぎること。結婚・持ち家を「当然」と思うこと。"></textarea>
       </div>
       <div class="field-group">
-        <label>何に時間を使うことが「豊か」とされるか</label>
+        <label data-age-template="{age}にとって、何に時間を使うことが「豊か」か">何に時間を使うことが「豊か」とされるか</label>
         <textarea id="s2-q3" rows="3" placeholder="例：好きなことに没頭する時間。友人とだらだらする時間。副業や自分のプロジェクト。"></textarea>
       </div>
       <div class="field-group">
-        <label>何を信用するか</label>
+        <label data-age-template="{age}は何を信用するか">何を信用するか</label>
         <textarea id="s2-q4" rows="3" placeholder="例：実際に使った人の口コミ。同世代が経験してきたこと。透明性のある情報。"></textarea>
       </div>
     </div>
@@ -808,23 +808,23 @@
     <div class="pane-right">
       <div class="key-field field-group">
         <div class="key-field-hint">▶ グループで決める</div>
-        <label>この未来人が特に注目する生活シーン・領域</label>
+        <label data-age-template="{age}の未来人が特に注目する生活シーン・領域">この未来人が特に注目する生活シーン・領域</label>
         <input type="text" id="s3-lifefocus" placeholder="例：キャリアの模索、一人暮らしの生活設計、恋愛・友人との時間の使い方...">
       </div>
       <div class="field-group">
-        <label>朝起きて最初に何をするか</label>
+        <label data-age-template="{age}は朝起きて最初に何をするか">朝起きて最初に何をするか</label>
         <textarea id="s3-d1" rows="3" placeholder="例：スマホでSNSとニュースをざっと確認し、その日の予定をメモアプリで整理する。"></textarea>
       </div>
       <div class="field-group">
-        <label>どんな相手と意思決定するか</label>
+        <label data-age-template="{age}はどんな相手と意思決定するか">どんな相手と意思決定するか</label>
         <textarea id="s3-d2" rows="3" placeholder="例：仲のいい友人1〜2人。信頼できる先輩。オンラインコミュニティ。"></textarea>
       </div>
       <div class="field-group">
-        <label>移動・買い物・学習・ケアをどう行うか</label>
+        <label data-age-template="{age}は移動・買い物・学習・ケアをどう行うか">移動・買い物・学習・ケアをどう行うか</label>
         <textarea id="s3-d3" rows="3" placeholder="例：移動はシェアサイクル。食事はサブスク宅配と自炊の組み合わせ。学習はYouTubeと短期オンラインコース。"></textarea>
       </div>
       <div class="field-group">
-        <label>何を煩わしいと思うか</label>
+        <label data-age-template="{age}は何を煩わしいと思うか">何を煩わしいと思うか</label>
         <textarea id="s3-d4" rows="3" placeholder="例：根拠のない同調圧力。一つの生き方への誘導。意味の見えない定型業務。"></textarea>
       </div>
     </div>
@@ -1285,6 +1285,11 @@ function applyAgeContent() {
   // Age reminder chips
   const reminderText = c.label + ' の未来人';
   ['age-reminder-1', 'age-reminder-2', 'age-reminder-3'].forEach(id => setText(id, reminderText));
+
+  // Age-templated labels
+  document.querySelectorAll('[data-age-template]').forEach(el => {
+    el.textContent = el.dataset.ageTemplate.replace('{age}', c.label);
+  });
 }
 
 function setText(id, text) {
