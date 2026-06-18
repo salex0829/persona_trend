@@ -129,6 +129,14 @@
       font-size: 0.68rem; color: var(--accent); letter-spacing: 0.14em;
       font-weight: 700; text-transform: uppercase; margin-bottom: 6px;
     }
+    .age-reminder {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent-light); color: var(--accent);
+      font-size: 0.78rem; font-weight: 500;
+      padding: 4px 12px; border-radius: 100px;
+      margin-bottom: 14px;
+    }
+    .age-reminder::before { content: '👤'; font-size: 0.72rem; }
     .pane h2 {
       font-family: var(--font-serif); font-weight: 700;
       font-size: 1.375rem; color: var(--text);
@@ -622,6 +630,7 @@
 <div id="pane-1" class="pane">
   <div class="pane-intro">
     <div class="step-badge">Step 1 / 3</div>
+    <div class="age-reminder" id="age-reminder-1">18歳〜30歳の未来人</div>
     <h2 id="s1-heading">未来の18〜30歳の価値観を考える</h2>
     <p class="step-desc" id="s1-desc">
       社会に出たばかり、またはキャリアを模索している世代——この時代・環境のなかで、彼らは何を重視するようになるか。<br>
@@ -733,6 +742,7 @@
 <div id="pane-2" class="pane hidden">
   <div class="pane-intro">
     <div class="step-badge">Step 2 / 3</div>
+    <div class="age-reminder" id="age-reminder-2">18歳〜30歳の未来人</div>
     <h2 id="s2-heading">未来の18〜30歳の日常を書く</h2>
     <p class="step-desc" id="s2-desc">
       Step 1 で決めた価値観を持つ18〜30歳の、ある1日を想像して書いてみましょう。<br>
@@ -847,6 +857,7 @@
 <div id="pane-3" class="pane hidden">
   <div class="pane-intro">
     <div class="step-badge">Step 3 / 3</div>
+    <div class="age-reminder" id="age-reminder-3">18歳〜30歳の未来人</div>
     <h2>プロフィール化する</h2>
     <p class="step-desc">
       未来人をカードにまとめましょう。<br>
@@ -1270,6 +1281,10 @@ function applyAgeContent() {
   setPlaceholder('s3-d2', s2.ph_d2);
   setPlaceholder('s3-d3', s2.ph_d3);
   setPlaceholder('s3-d4', s2.ph_d4);
+
+  // Age reminder chips
+  const reminderText = c.label + ' の未来人';
+  ['age-reminder-1', 'age-reminder-2', 'age-reminder-3'].forEach(id => setText(id, reminderText));
 }
 
 function setText(id, text) {
