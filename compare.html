@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>人間の本質と比較する — 未来社会ガチャ</title>
+  <title>マズローの欲求階層で読み解く — 未来人ペルソナ探索ツール</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -106,7 +106,7 @@
 
     /* ── Lead ── */
     .lead-section {
-      text-align: center; margin-bottom: 48px;
+      text-align: center; margin-bottom: 40px;
       animation: reveal 0.5s ease;
     }
     .lead-eyebrow {
@@ -120,6 +120,42 @@
     .lead-section p {
       font-size: 0.88rem; color: var(--text-sub); line-height: 1.9;
       max-width: 640px; margin: 0 auto;
+    }
+
+    /* ── Maslow pyramid ── */
+    .maslow-pyramid {
+      margin: 0 auto 40px;
+      max-width: 480px;
+      animation: reveal 0.5s ease;
+    }
+    .pyramid-row {
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 4px; cursor: pointer; transition: opacity 0.15s;
+    }
+    .pyramid-row:hover { opacity: 0.8; }
+    .pyramid-cell {
+      border-radius: 6px; padding: 7px 16px;
+      font-size: 0.75rem; font-weight: 700; color: #fff;
+      text-align: center; letter-spacing: 0.04em;
+      display: flex; align-items: center; gap: 8px;
+      transition: box-shadow 0.15s;
+    }
+    .pyramid-cell:hover { box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+    .pyr-num {
+      font-family: var(--font-serif); font-size: 0.85rem;
+      opacity: 0.8; flex-shrink: 0;
+    }
+    .pyr-label { white-space: nowrap; }
+
+    .pyramid-row:nth-child(1) .pyramid-cell { background: #7c3aed; width: 360px; }
+    .pyramid-row:nth-child(2) .pyramid-cell { background: #2563eb; width: 300px; }
+    .pyramid-row:nth-child(3) .pyramid-cell { background: #059669; width: 240px; }
+    .pyramid-row:nth-child(4) .pyramid-cell { background: #d97706; width: 180px; }
+    .pyramid-row:nth-child(5) .pyramid-cell { background: #dc2626; width: 120px; }
+
+    .pyramid-hint {
+      text-align: center; font-size: 0.7rem; color: var(--text-muted);
+      margin-top: 8px; letter-spacing: 0.04em;
     }
 
     /* ── Lens card ── */
@@ -140,7 +176,7 @@
       font-size: 1.25rem; flex-shrink: 0;
     }
     .lens-meta { flex: 1; }
-    .lens-discipline {
+    .lens-level {
       font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em;
       text-transform: uppercase; margin-bottom: 2px;
     }
@@ -148,59 +184,31 @@
       font-family: var(--font-serif); font-size: 1.05rem; font-weight: 700;
       color: var(--text);
     }
-    .lens-thinker {
+    .lens-sublabel {
       font-size: 0.72rem; color: var(--text-muted);
       text-align: right; line-height: 1.55; flex-shrink: 0;
     }
 
-    /* lens colour themes */
-    .lens-card.anthro .lens-header { border-left: 4px solid #f59e0b; }
-    .lens-card.anthro .lens-icon   { background: #fffbeb; }
-    .lens-card.anthro .lens-discipline { color: #b45309; }
+    /* Maslow level colour themes */
+    .lens-card.maslow5 .lens-header { border-left: 4px solid #7c3aed; }
+    .lens-card.maslow5 .lens-icon   { background: #f5f3ff; }
+    .lens-card.maslow5 .lens-level  { color: #6d28d9; }
 
-    .lens-card.myth .lens-header   { border-left: 4px solid #7c3aed; }
-    .lens-card.myth .lens-icon     { background: #f5f3ff; }
-    .lens-card.myth .lens-discipline { color: #6d28d9; }
+    .lens-card.maslow4 .lens-header { border-left: 4px solid #2563eb; }
+    .lens-card.maslow4 .lens-icon   { background: #eff6ff; }
+    .lens-card.maslow4 .lens-level  { color: #1d4ed8; }
 
-    .lens-card.psych .lens-header  { border-left: 4px solid #06b6d4; }
-    .lens-card.psych .lens-icon    { background: #ecfeff; }
-    .lens-card.psych .lens-discipline { color: #0e7490; }
+    .lens-card.maslow3 .lens-header { border-left: 4px solid #059669; }
+    .lens-card.maslow3 .lens-icon   { background: #ecfdf5; }
+    .lens-card.maslow3 .lens-level  { color: #065f46; }
 
-    .lens-card.philo .lens-header  { border-left: 4px solid #10b981; }
-    .lens-card.philo .lens-icon    { background: #ecfdf5; }
-    .lens-card.philo .lens-discipline { color: #065f46; }
+    .lens-card.maslow2 .lens-header { border-left: 4px solid #d97706; }
+    .lens-card.maslow2 .lens-icon   { background: #fffbeb; }
+    .lens-card.maslow2 .lens-level  { color: #92400e; }
 
-    .lens-card.ubuntu .lens-header { border-left: 4px solid #f97316; }
-    .lens-card.ubuntu .lens-icon   { background: #fff7ed; }
-    .lens-card.ubuntu .lens-discipline { color: #c2410c; }
-
-    .lens-card.buddhism .lens-header { border-left: 4px solid #0d9488; }
-    .lens-card.buddhism .lens-icon   { background: #f0fdfa; }
-    .lens-card.buddhism .lens-discipline { color: #0f766e; }
-
-    .lens-card.confucian .lens-header { border-left: 4px solid #ca8a04; }
-    .lens-card.confucian .lens-icon   { background: #fefce8; }
-    .lens-card.confucian .lens-discipline { color: #854d0e; }
-
-    .lens-card.taoism .lens-header { border-left: 4px solid #16a34a; }
-    .lens-card.taoism .lens-icon   { background: #f0fdf4; }
-    .lens-card.taoism .lens-discipline { color: #166534; }
-
-    .lens-card.careethics .lens-header { border-left: 4px solid #e11d48; }
-    .lens-card.careethics .lens-icon   { background: #fff1f2; }
-    .lens-card.careethics .lens-discipline { color: #be123c; }
-
-    .lens-card.evopsych .lens-header { border-left: 4px solid #65a30d; }
-    .lens-card.evopsych .lens-icon   { background: #f7fee7; }
-    .lens-card.evopsych .lens-discipline { color: #3f6212; }
-
-    .lens-card.behavecon .lens-header { border-left: 4px solid #2563eb; }
-    .lens-card.behavecon .lens-icon   { background: #eff6ff; }
-    .lens-card.behavecon .lens-discipline { color: #1d4ed8; }
-
-    .lens-card.pheno .lens-header { border-left: 4px solid #64748b; }
-    .lens-card.pheno .lens-icon   { background: #f8fafc; }
-    .lens-card.pheno .lens-discipline { color: #334155; }
+    .lens-card.maslow1 .lens-header { border-left: 4px solid #dc2626; }
+    .lens-card.maslow1 .lens-icon   { background: #fef2f2; }
+    .lens-card.maslow1 .lens-level  { color: #991b1b; }
 
     /* ── Timer ── */
     .timer-bar {
@@ -246,22 +254,6 @@
       font-family: var(--font-sans); transition: all 0.15s;
     }
     .btn-timer-reset:hover { border-color: var(--text-sub); color: var(--text-sub); }
-
-    /* ── Shuffle button ── */
-    .shuffle-wrap {
-      text-align: center; margin-bottom: 36px;
-      display: flex; align-items: center; justify-content: center; gap: 12px;
-      flex-wrap: wrap;
-    }
-    .btn-shuffle {
-      padding: 9px 28px; border-radius: 20px;
-      background: var(--surface); border: 1.5px solid var(--border);
-      color: var(--text-sub); font-size: 0.84rem; font-weight: 600;
-      cursor: pointer; transition: all 0.2s; font-family: var(--font-sans);
-      letter-spacing: 0.04em;
-    }
-    .btn-shuffle:hover { border-color: var(--accent); color: var(--accent); }
-    .shuffle-hint { font-size: 0.72rem; color: var(--text-muted); }
 
     /* ── Lens body ── */
     .lens-body {
@@ -328,8 +320,8 @@
       text-transform: uppercase; margin-bottom: 6px; padding: 4px 10px;
       border-radius: 6px; display: inline-block;
     }
-    .syn-change-label  { color: #db2777; background: #fdf2f8; }
-    .syn-const-label   { color: #5c50d6; background: var(--accent-light); }
+    .syn-satisfied-label { color: #059669; background: #ecfdf5; }
+    .syn-threatened-label { color: #dc2626; background: #fef2f2; }
 
     /* ── Discussion (voice) ── */
     .discussion-wrap {
@@ -399,8 +391,13 @@
     @media (max-width: 680px) {
       .lens-body { grid-template-columns: 1fr; gap: 16px; }
       .synthesis-cols { grid-template-columns: 1fr; }
-      .lens-thinker { display: none; }
+      .lens-sublabel { display: none; }
       .strip-chips { margin-top: 8px; }
+      .pyramid-row:nth-child(1) .pyramid-cell { width: 100%; }
+      .pyramid-row:nth-child(2) .pyramid-cell { width: 85%; }
+      .pyramid-row:nth-child(3) .pyramid-cell { width: 70%; }
+      .pyramid-row:nth-child(4) .pyramid-cell { width: 55%; }
+      .pyramid-row:nth-child(5) .pyramid-cell { width: 40%; }
     }
   </style>
 </head>
@@ -418,13 +415,33 @@
   <div id="persona-strip"></div>
 
   <div class="lead-section">
-    <div class="lead-eyebrow">Deep Dive</div>
-    <h1>人間の本質と比較する</h1>
+    <div class="lead-eyebrow">Step 5 — Behavioral Principles</div>
+    <h1>マズローの欲求階層で読み解く</h1>
     <p>
-      文化人類学・神話・心理学・哲学が描いてきた「時代や文化を超えた行動原理」と、<br>
+      A. マズローが示した「生理的→安全→社会的→承認→自己実現」の5段階欲求に、<br>
       このペルソナを照らし合わせましょう。<br>
-      未来の姿の中に宿る「変わらない人間」の輪郭が見えてきます。
+      未来の姿の中に宿る「変わらない人間の欲求」の輪郭が見えてきます。
     </p>
+  </div>
+
+  <!-- Maslow Pyramid -->
+  <div class="maslow-pyramid">
+    <div class="pyramid-row" onclick="scrollToLevel(5)">
+      <div class="pyramid-cell"><span class="pyr-num">⑤</span><span class="pyr-label">自己実現の欲求</span></div>
+    </div>
+    <div class="pyramid-row" onclick="scrollToLevel(4)">
+      <div class="pyramid-cell"><span class="pyr-num">④</span><span class="pyr-label">承認の欲求</span></div>
+    </div>
+    <div class="pyramid-row" onclick="scrollToLevel(3)">
+      <div class="pyramid-cell"><span class="pyr-num">③</span><span class="pyr-label">社会的欲求（所属と愛）</span></div>
+    </div>
+    <div class="pyramid-row" onclick="scrollToLevel(2)">
+      <div class="pyramid-cell"><span class="pyr-num">②</span><span class="pyr-label">安全の欲求</span></div>
+    </div>
+    <div class="pyramid-row" onclick="scrollToLevel(1)">
+      <div class="pyramid-cell"><span class="pyr-num">①</span><span class="pyr-label">生理的欲求</span></div>
+    </div>
+    <p class="pyramid-hint">▲ 段をクリックすると該当セクションへ移動します</p>
   </div>
 
   <div class="timer-bar" id="timer-bar-cmp">
@@ -441,29 +458,25 @@
     </div>
   </div>
 
-  <div class="shuffle-wrap">
-    <button class="btn-shuffle" onclick="shuffleLenses()">🎲 視点を引き直す（4つをランダムに再選択）</button>
-    <span class="shuffle-hint">12視点のプールから異なる組み合わせを選べます</span>
-  </div>
-
   <div id="lens-panels"></div>
 
   <div class="synthesis-section">
     <div class="synthesis-eyebrow">Synthesis</div>
-    <h2>統合：変わるものと変わらないもの</h2>
+    <h2>統合：どの欲求が変わり、何が変わらないか</h2>
     <p class="sub">
-      4つの視点を通じて気づいたことを、最後に言語化してみましょう。
+      5段階を通じて気づいたことを言語化してみましょう。<br>
+      テクノロジーや社会変化が欲求の「充足手段」を変えても、欲求そのものは残り続けているでしょうか。
     </p>
     <div class="synthesis-cols">
       <div class="field-group">
-        <div class="synthesis-col-label syn-change-label">変わること</div>
+        <div class="synthesis-col-label syn-satisfied-label">充足されている欲求・層</div>
         <textarea id="syn-change" rows="6"
-          placeholder="例：つながりの形・意思決定の主体・「安心」の根拠・「一人前」の基準が変わっている。"></textarea>
+          placeholder="例：安全欲求は記録・可変性・複数の拠点で充足されている。承認は所属コミュニティの中で小さく満たされる。自己実現は「複数の自分」を持つことで広がっている。"></textarea>
       </div>
       <div class="field-group">
-        <div class="synthesis-col-label syn-const-label">変わらないこと</div>
+        <div class="synthesis-col-label syn-threatened-label">脅かされている欲求・層</div>
         <textarea id="syn-constant" rows="6"
-          placeholder="例：承認されたいという欲求、コミュニティへの帰属欲、試練を通じて成長するという物語の構造、意味を求める姿勢。"></textarea>
+          placeholder="例：生理的欲求の充足形が変わり不安定さが増している。所属欲求は満たされにくく、孤立のリスクが高い。承認が外部スコアに依存しすぎている。"></textarea>
       </div>
     </div>
   </div>
@@ -506,236 +519,90 @@ const drawn  = JSON.parse(localStorage.getItem('pg_drawn')   || 'null');
 const steps  = JSON.parse(localStorage.getItem('pg_steps')   || '{}');
 let   compare = JSON.parse(localStorage.getItem('pg_compare') || '{}');
 
-/* ── Lens pool (12 lenses — 4 randomly selected per session) ── */
-const LENS_POOL = [
+/* ── Maslow levels (always shown, lowest → highest) ── */
+const MASLOW_LEVELS = [
   {
-    id: 'anthro', cls: 'anthro', icon: '🏛',
-    discipline: '文化人類学',
-    framework: '通過儀礼（Rites of Passage）',
-    thinker: 'A. ヴァン・ヘネップ / V. ターナー',
-    origin: '20世紀 フランス・イギリス',
+    id: 'maslow1', cls: 'maslow1', icon: '🍚', num: '①',
+    level: '第1層 — 生理的欲求',
+    framework: '生理的欲求（Physiological Needs）',
+    sublabel: 'A. マズロー\n欲求階層説・1943年',
     explanation:
-      'どの文化でも人間は「分離 → 移行（リミナリティ）→ 統合」という構造で' +
-      'コミュニティへの帰属や社会的役割を更新してきた。' +
-      '入学・成人・結婚・就職など人生の節目には「一人前」と認められるための儀礼的プロセスが存在する。' +
-      '移行期の「どちらでもない状態」こそが変容の核心とされる。',
-    q1label: 'このペルソナが経験する「通過儀礼」はどのようなものか？（何をもって一人前・仲間入りとされるか）',
-    q1ph:    '例：特定のスキルセットや実績ログを示すこと。複数コミュニティで信頼を積み重ねること。',
-    q2label: '現代の私たちの通過儀礼と比べて、何が変わり、何が変わっていないか？',
-    q2ph:    '例：「卒業証書」「入社」の形が変わった。しかし「承認される」という構造は残っている。',
+      '人間が生きるための最も根本的な欲求。食事・睡眠・体温調節・住居・健康・身体的安全など。' +
+      'この層が満たされていない限り、より上位の欲求は意識に上りにくい。' +
+      'テクノロジーは生理的欲求の充足形をどう変えているか？' +
+      '「食べること」「眠ること」「健康を守ること」の形が変わる中で、根本的な欲求そのものは変わらない。',
+    q1label: 'このペルソナは「食・睡眠・住居・健康」をどのように確保しているか？未来社会での変化は何か？',
+    q1ph:    '例：食事はサブスク宅配と自炊の組み合わせ。睡眠は健康データで管理。住居はサブスク型の多拠点居住。',
+    q2label: '生理的欲求の充足が「脅かされる」局面はあるか？身体のケアをどう優先・後回しにしているか？',
+    q2ph:    '例：忙しさで食事や睡眠が不規則になりやすい。身体よりデジタルな安心を優先しがち。',
   },
   {
-    id: 'myth', cls: 'myth', icon: '⚡',
-    discipline: '神話学・比較宗教学',
-    framework: '英雄の旅（モノミス）',
-    thinker: 'J. キャンベル',
-    origin: '20世紀 アメリカ',
+    id: 'maslow2', cls: 'maslow2', icon: '🛡️', num: '②',
+    level: '第2層 — 安全の欲求',
+    framework: '安全の欲求（Safety Needs）',
+    sublabel: 'A. マズロー\n欲求階層説・1943年',
     explanation:
-      '世界中の神話に共通する物語構造「英雄の旅」。' +
-      '日常からの出発・師との出会い・試練と死と再生・変容・帰還——' +
-      'このパターンは人間が変化・成長・意味探索をどう物語るかを示している。' +
-      '現代の映画や個人の人生語りにもこの構造は生き続けている。',
-    q1label: 'このペルソナにとっての「冒険への召命」と「試練」は何か？（何が境界を越えさせるか）',
-    q1ph:    '例：カオス（撹乱）が「出発のきっかけ」になっている。既存の帰属や役割を手放す選択。',
-    q2label: 'このペルソナは何を得て（宝・変容）、どんな「英雄」として帰還するか？',
-    q2ph:    '例：自分の意思決定を取り戻した人。複数の共同体をつなぐ媒介者として戻ってくる。',
+      '危険・脅威・不安からの解放を求める欲求。身体的安全・経済的安定・健康・財産・秩序・予測可能性など。' +
+      '不確実性の高い時代、急速な技術変化、プライバシーの侵食、経済的不安定さがこの欲求に大きく影響する。' +
+      '「安全」の根拠が「終身雇用・持ち家・年金」から何へと変わっているのか？',
+    q1label: 'このペルソナにとって「安全・安心」の根拠は何か？何が脅威として感じられているか？',
+    q1ph:    '例：複数の収入源があること。スキルの記録が残ること。特定の会社に依存しないこと。',
+    q2label: '安全欲求を充足するための「仕組みや手段」はどう変わったか？親世代と比べると何が変わっているか？',
+    q2ph:    '例：貯金より「信頼スコア」や「実績ログ」で安心を得る。保険より柔軟なセーフティーネット。',
   },
   {
-    id: 'psych', cls: 'psych', icon: '🧠',
-    discipline: '深層心理学',
-    framework: '欲求階層 / 個性化',
-    thinker: 'A. マズロー / C.G. ユング',
-    origin: '20世紀 アメリカ・スイス',
+    id: 'maslow3', cls: 'maslow3', icon: '🤝', num: '③',
+    level: '第3層 — 社会的欲求（所属と愛）',
+    framework: '社会的欲求（Love & Belonging Needs）',
+    sublabel: 'A. マズロー\n欲求階層説・1943年',
     explanation:
-      'マズローは「生理→安全→社会→承認→自己実現」の欲求階層を示した。' +
-      'ユングは「影（認めたくない自己）」や「元型（英雄・賢者・トリックスター等）」が' +
-      '行動を動かすと論じ、それらを統合していく「個性化」のプロセスを提唱した。' +
-      'どちらも人間の内的動機の普遍的構造を探る。',
-    q1label: 'このペルソナの欲求はどの層が中心か？満たされている欲求・脅かされている欲求は何か？',
-    q1ph:    '例：安全欲求の形が変わった（記録・可変性が安心）。承認は個人よりコミュニティ単位で得る。',
-    q2label: 'このペルソナの「影（認めたくない側面）」や「まだ統合されていないもの」はどこに見えるか？',
-    q2ph:    '例：効率への依存。「一人でいること」への恐れ。自分の判断への不安。',
+      '人間は孤独を避け、集団に属し、愛し愛されたいという欲求を持つ。' +
+      '家族・友人・恋愛・コミュニティへの帰属感・仲間意識など。' +
+      'デジタルコミュニティの発展により「つながり」の形は多様化するが、帰属したいという衝動は変わらない。' +
+      '「ゆるいつながり」と「深いつながり」のバランスはどう取られているか？',
+    q1label: 'このペルソナはどのコミュニティ・関係に「所属」を感じているか？「つながり」の形はどんな形をしているか？',
+    q1ph:    '例：オンラインコミュニティ複数に所属。リアルな友人は少数だが深い。家族より選んだ仲間が中心。',
+    q2label: 'この社会での孤立・排除・疎外はどんな形で現れるか？つながりが「薄れる」危険はどこにあるか？',
+    q2ph:    '例：コミュニティから外されることへの不安。オンラインのつながりがリアルの孤独を隠している。',
   },
   {
-    id: 'philo', cls: 'philo', icon: '💭',
-    discipline: '政治哲学',
-    framework: 'ゾーン・ポリティコン',
-    thinker: 'アリストテレス / H. アーレント',
-    origin: '古代ギリシャ・20世紀ドイツ/アメリカ',
+    id: 'maslow4', cls: 'maslow4', icon: '⭐', num: '④',
+    level: '第4層 — 承認の欲求',
+    framework: '承認の欲求（Esteem Needs）',
+    sublabel: 'A. マズロー\n欲求階層説・1943年',
     explanation:
-      'アリストテレスは「人間は本性上ポリス的（社会的）動物である」と言った。' +
-      'アーレントはそれを「複数性」と呼び、他者と共にいること・行為と言論・' +
-      '公共空間への参加が人間らしさの核だと論じた。' +
-      '「善く生きること（エウダイモニア）」は常に他者との関係の中にある。',
-    q1label: 'このペルソナにとっての「ポリス（公共空間）」はどこか？誰と何を共有しているか？',
-    q1ph:    '例：特定のオンラインコミュニティ。複数の小さな「公共」を行き来する。国家より小さい単位。',
-    q2label: '「善く生きること（エウダイモニア）」の形はどう変わっているか。変わっていないものは何か？',
-    q2ph:    '例：豊かさの基準が「所有」から「関係の質」に変わった。しかし「意味ある行為をしたい」は変わらない。',
+      '「外的承認欲求」（他者からの評価・尊重・地位・名声）と「内的承認欲求」（自己尊重・達成感・自信）の2つがある。' +
+      'SNS・評判スコア・実績ログなど、承認の「可視化」が進む時代。' +
+      '外からの承認に過度に依存すると自尊感情が不安定になる危険がある。' +
+      '何をもって「一人前」「認められた」と感じるかの基準は、誰が決めているのか？',
+    q1label: 'このペルソナにとって「承認される」「認められる」とはどういうことか？誰から、何で認められることを求めているか？',
+    q1ph:    '例：特定のコミュニティ内での信頼。実績ログの蓄積。自分が納得できる選択をしていること。',
+    q2label: '承認の「形」（何をもって評価されるか）はどう変わったか？自己尊重（内的承認）はどこから来るか？',
+    q2ph:    '例：学歴より実績ログ。フォロワー数より共感の質。「比べられる」基準が変わっている。',
   },
   {
-    id: 'ubuntu', cls: 'ubuntu', icon: '🌍',
-    discipline: 'アフリカ哲学',
-    framework: 'ウブントゥ（Ubuntu）',
-    thinker: 'D. ツツ / J.S. ムビティ',
-    origin: 'サブサハラ・アフリカ',
+    id: 'maslow5', cls: 'maslow5', icon: '🌟', num: '⑤',
+    level: '第5層 — 自己実現の欲求',
+    framework: '自己実現の欲求（Self-Actualization Needs）',
+    sublabel: 'A. マズロー\n欲求階層説・1943年',
     explanation:
-      '「私があるのは、私たちがあるから（Umuntu ngumuntu ngabantu）」。' +
-      '自己は共同体を通じて初めて完成し、人間はコミュニティとの関係の網の目の中にのみ存在しうる。' +
-      '個人の利益より共同体の調和・相互扶助・「共にいること」が価値の中心に置かれる。' +
-      '孤独は人間性の喪失であり、他者への応答こそが自己の証明となる。',
-    q1label: 'このペルソナにとって「共同体」はどこにあるか？誰との関係が自分を「自分」にしているか？',
-    q1ph:    '例：オンラインコミュニティが「ウブントゥ的な場」になっている。ケアの交換が自己確認の手段になっている。',
-    q2label: 'この未来社会で「ウブントゥ」的な相互扶助の精神はどう変容しているか？それでも残るものは何か？',
-    q2ph:    '例：相互扶助がアルゴリズムで最適化されると精神は残るか？「共にいること」の質はどう変わるか？',
-  },
-  {
-    id: 'buddhism', cls: 'buddhism', icon: '☸️',
-    discipline: '仏教哲学',
-    framework: '縁起・無常・苦（Dependent Origination）',
-    thinker: 'ゴータマ・シッダールタ / 龍樹',
-    origin: '古代インド・紀元前5世紀',
-    explanation:
-      'すべての存在は相互依存しており（縁起）、固定した実体がない（諸行無常・空）。' +
-      'この真理を見誤ると「苦」が生まれる。執着・渇愛・無知が苦の根源であり、' +
-      '無常を受け入れ「今ここ」に注意を向けることで解放される。' +
-      '個人の境界は幻想であり、すべてはつながっている（相互依存）。',
-    q1label: 'このペルソナが「執着」しているものは何か？それが生む「苦」はどんな形で現れるか？',
-    q1ph:    '例：データ・評価記録への執着。「役割アイデンティティ」への固執。AIへの依存が生む不安。',
-    q2label: 'この社会の「無常」（急激な変化・不安定性）に、このペルソナはどう向き合っているか？',
-    q2ph:    '例：変化を受け入れる柔軟性があるか？「今ここ」に根ざすとはどういうことか？縁起の観点で見ると？',
-  },
-  {
-    id: 'confucian', cls: 'confucian', icon: '📜',
-    discipline: '儒教倫理学',
-    framework: '仁・礼・義（Ren / Li / Yi）',
-    thinker: '孔子 / 孟子',
-    origin: '古代中国・紀元前6〜4世紀',
-    explanation:
-      '「仁（思いやり・人間愛）」「礼（適切な関係・秩序）」「義（正しい行い・正義）」の徳を磨くことで関係と社会が整う。' +
-      '自己修養と社会秩序は不可分であり、人間は社会的役割（親・子・師弟）の中で徳を実践することで完成する。' +
-      '学びと自己改善は終わりなき営みであり、「日に新たに、また日に新たに」という継続的成長が重視される。',
-    q1label: 'このペルソナの生活で「礼」（適切な関係・役割・形式）はどんな形をとっているか？',
-    q1ph:    '例：複数コミュニティでの役割ルール。AIとの関係における礼儀・距離感。新しい「師弟関係」の形。',
-    q2label: '「仁（思いやり）」はこの未来社会でどのように表現・行使されているか？形が変わったものと変わらないものは？',
-    q2ph:    '例：ケアの形がデジタル化されても「仁」は残るか？承認・感謝・尊重の表現方法はどう変わったか？',
-  },
-  {
-    id: 'taoism', cls: 'taoism', icon: '☯️',
-    discipline: '道家思想',
-    framework: '無為自然（Wu Wei / Ziran）',
-    thinker: '老子 / 荘子',
-    origin: '古代中国・紀元前4〜3世紀',
-    explanation:
-      '「道（タオ）に従い、無理な作為をせず自然に流れる（無為自然）」。' +
-      '過度なコントロール・最適化・介入は物事を歪める。' +
-      '「水のように」柔軟で、抵抗するより流れることが本質。' +
-      '変化を恐れず「そうあること（自然）」を大切にする。役に立たないものこそが最も役立つことがある（有用性の逆説）。',
-    q1label: 'このペルソナが「あえてしない」ことで成立しているものは何か？「自然な流れ」とはどんなものか？',
-    q1ph:    '例：最適化しすぎないことで残る余白。AIに任せないことで保たれる何か。「不完全さ」の価値。',
-    q2label: '「最適化・管理・コントロール」への欲求と「無為」の感覚の間にある緊張をどう見るか？',
-    q2ph:    '例：AI全自動化が進む中「道に従う」とはどういうことか？効率の追求が失わせるものは何か？',
-  },
-  {
-    id: 'careethics', cls: 'careethics', icon: '💞',
-    discipline: 'フェミニスト倫理学',
-    framework: 'ケアの倫理（Ethics of Care）',
-    thinker: 'C. ギリガン / N. ノディングズ / V. ヘルド',
-    origin: '20世紀後半 アメリカ',
-    explanation:
-      '「普遍的なルールより、具体的な関係・依存・ケアの実践を倫理の中心に置く」。' +
-      'すべての人間は誰かに依存し、誰かをケアしながら生きており、その相互依存性を認めることが倫理の出発点。' +
-      '「自律した個人」は幻想であり、弱さ・依存・応答可能性（responsibility）こそが人間の本質とされる。',
-    q1label: 'このペルソナの生活でケアはどう組み込まれているか？誰がケアし、誰がケアされているか？',
-    q1ph:    '例：ケアの「見えない労働」はどこへ行ったか？AIがケアを担う時、関係性はどう変わるか？',
-    q2label: 'この未来社会では「依存すること」「助けを求めること」の意味はどう変わったか？変わっていないものは？',
-    q2ph:    '例：依存が恥ではなくなっているか？「ケアの経済」はどう機能しているか？応答可能性はどこにあるか？',
-  },
-  {
-    id: 'evopsych', cls: 'evopsych', icon: '🧬',
-    discipline: '進化心理学・社会生物学',
-    framework: '互恵的利他主義（Reciprocal Altruism）',
-    thinker: 'R. トリヴァース / R. ドーキンス',
-    origin: '20世紀後半 アメリカ・イギリス',
-    explanation:
-      '「なぜ人間は他者を助けるのか？」：進化の視点では、協力・見返り・評判の管理が種の繁栄を支える。' +
-      '信頼・互恵・評判システムにより協力行動は進化的に安定する。' +
-      '人間は「小規模なバンド（150人程度）」を前提に進化した社会的動物であり、' +
-      '大規模社会や匿名空間での協力には特別な仕組みが必要になる（ダンバー数）。',
-    q1label: 'このペルソナの社会では「協力」はどんな形で成立しているか？見返りはどう扱われているか？',
-    q1ph:    '例：評判スコア・信頼ログが協力を支える仕組み。「プロジェクト参加型」の協力はどう安定するか？',
-    q2label: '「フリーライダー問題（ただ乗り）」はこの社会でどう解決・あるいは無視されているか？',
-    q2ph:    '例：透明な記録が不正を防ぐ。それでも「搾取」はどこに移動するか？新しいただ乗りの形は？',
-  },
-  {
-    id: 'behavecon', cls: 'behavecon', icon: '⚖️',
-    discipline: '行動経済学・認知心理学',
-    framework: '損失回避 / 二重過程理論（System 1 & 2）',
-    thinker: 'D. カーネマン / A. トヴェルスキー',
-    origin: '20世紀後半 イスラエル・アメリカ',
-    explanation:
-      '「人は利益より損失を約2倍強く恐れる（損失回避）」。' +
-      'また意思決定には速くて直感的な「システム1」と遅くて論理的な「システム2」があり、' +
-      '多くの判断は無意識のシステム1が担う。' +
-      '合理的に見えても、人間の行動は認知バイアス・ヒューリスティクス・フレーミングに大きく左右される。',
-    q1label: 'このペルソナが強く恐れている「損失」は何か？その恐れは行動をどう歪めているか？',
-    q1ph:    '例：評判・コミュニティ所属の「喪失」。AIに決定権を渡すことへの抵抗。自律性の喪失への恐怖。',
-    q2label: 'このペルソナの意思決定で「直感（システム1）」と「論理（システム2）」はどう使い分けられているか？',
-    q2ph:    '例：AIがシステム2を代替する時、人間の判断はどう変わるか？バイアスはどこに残り続けるか？',
-  },
-  {
-    id: 'pheno', cls: 'pheno', icon: '👁️',
-    discipline: '現象学・実存哲学',
-    framework: '身体化された実存（Being-in-the-world）',
-    thinker: 'M. ハイデガー / M. メルロ＝ポンティ',
-    origin: '20世紀 ドイツ・フランス',
-    explanation:
-      '「人間は世界に投げ込まれた存在（現存在）。身体を通じて世界を知覚し、道具や環境と一体となって生きている（道具存在）」。' +
-      '意識は頭の中にあるのではなく、身体・環境・他者との関わりの中にある。' +
-      '技術は単なる道具ではなく、人間の存在様式そのものを変える——' +
-      '「手に馴染んだ道具」になった技術は意識から消え、存在の一部になる。',
-    q1label: 'このペルソナにとって「当たり前にある世界（環境・道具・身体習慣）」はどんな形か？',
-    q1ph:    '例：AIが「手に馴染んだ道具」になっている状態。デジタル・物理が融合した身体感覚。常時接続の体感。',
-    q2label: '身体・環境・AIの境界が変わることで、「存在すること」「ここにいること」の感覚はどう変化しているか？',
-    q2ph:    '例：場所感覚の変容。「リアルな体験」の定義の変化。身体の延長としての技術が生む新しい自己感覚。',
+      '自分の潜在能力を最大限に発揮し「なりたい自分」になることへの欲求。' +
+      '創造性・自律性・真正性・成長・意味探求・ピーク体験などが含まれる。' +
+      'マズローは晩年に「自己超越（自己を超えて他者・社会・宇宙とつながること）」を第6層として加えた。' +
+      'この層の「形」は個人・文化・時代によって大きく異なる。この未来人にとっての自己実現とは何か？',
+    q1label: 'このペルソナにとって「自己実現」とはどんな姿か？何をすることが「本当の自分」を生きていると感じさせるか？',
+    q1ph:    '例：複数の役割を自由に切り替えながら生きること。特定のコミュニティで貢献できること。好きなことで生計を立てること。',
+    q2label: 'この未来人の自己実現は「個人」か「共同体」か？どんな制約や障壁が自己実現を妨げているか？',
+    q2ph:    '例：経済的不安が自己実現の追求を難しくしている。社会の期待と自分の欲求がずれている。',
   },
 ];
-
-/* ── Selected lenses (4 from pool per session) ── */
-let selectedLenses = [];
-
-function pickLenses(saved) {
-  if (saved && saved.length === 4) {
-    const resolved = saved.map(id => LENS_POOL.find(l => l.id === id)).filter(Boolean);
-    if (resolved.length === 4) return resolved;
-  }
-  // random pick — Fisher-Yates on copy
-  const pool = [...LENS_POOL];
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
-  return pool.slice(0, 4);
-}
-
-function shuffleLenses() {
-  if (!confirm('視点を引き直します。現在の記入内容はリセットされます。よろしいですか？')) return;
-  // clear lens entries in compare
-  selectedLenses.forEach(l => { delete compare[l.id]; });
-  compare.selectedLensIds = null;
-  selectedLenses = pickLenses(null);
-  compare.selectedLensIds = selectedLenses.map(l => l.id);
-  renderLenses();
-  saveAll();
-}
 
 /* ── Render ── */
 window.addEventListener('DOMContentLoaded', () => {
   renderPersonaStrip();
-  selectedLenses = pickLenses(compare.selectedLensIds);
   renderLenses();
   restoreAll();
   startSync();
-  // 共有ボタンは常時表示（CSS で display:flex 設定済み）
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
@@ -749,6 +616,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (e.target.tagName === 'TEXTAREA') saveAll();
   });
 });
+
+function scrollToLevel(n) {
+  const el = document.getElementById(`maslow${n}-card`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 function renderPersonaStrip() {
   const s4   = steps.step4 || {};
@@ -776,19 +648,19 @@ function renderPersonaStrip() {
 }
 
 function renderLenses() {
-  document.getElementById('lens-panels').innerHTML = selectedLenses.map(l => `
-    <div class="lens-card ${l.cls}">
+  document.getElementById('lens-panels').innerHTML = MASLOW_LEVELS.map(l => `
+    <div class="lens-card ${l.cls}" id="${l.id}-card">
       <div class="lens-header">
         <div class="lens-icon">${l.icon}</div>
         <div class="lens-meta">
-          <div class="lens-discipline">${esc(l.discipline)}</div>
+          <div class="lens-level">${esc(l.level)}</div>
           <div class="lens-framework">${esc(l.framework)}</div>
         </div>
-        <div class="lens-thinker">${esc(l.thinker)}<br><span style="opacity:.7">${esc(l.origin)}</span></div>
+        <div class="lens-sublabel">${esc(l.sublabel)}</div>
       </div>
       <div class="lens-body">
         <div class="lens-explanation">
-          <div class="lens-exp-title">視点の概要</div>
+          <div class="lens-exp-title">この欲求とは</div>
           <div class="lens-exp-text">${esc(l.explanation)}</div>
         </div>
         <div class="lens-fields">
@@ -808,14 +680,12 @@ function renderLenses() {
 /* ── Save / Restore ── */
 function saveAll() {
   compare = {};
-  compare.selectedLensIds = selectedLenses.map(l => l.id);
-  selectedLenses.forEach(l => {
+  MASLOW_LEVELS.forEach(l => {
     compare[l.id] = { q1: val(`${l.id}-q1`), q2: val(`${l.id}-q2`) };
   });
   compare.synthesis = { change: val('syn-change'), constant: val('syn-constant') };
   compare.discuss   = val('cmp-discuss');
   localStorage.setItem('pg_compare', JSON.stringify(compare));
-  // Firebase sync
   if (db && roomInfo) {
     db.collection('rooms').doc(roomInfo.code)
       .collection('groups').doc(roomInfo.name)
@@ -849,18 +719,13 @@ function shareNow() {
 }
 
 function applyRemoteCompare(r) {
-  // if remote has different lens selection, re-render
-  if (r.selectedLensIds && JSON.stringify(r.selectedLensIds) !== JSON.stringify(compare.selectedLensIds)) {
-    selectedLenses = pickLenses(r.selectedLensIds);
-    renderLenses();
-  }
   Object.assign(compare, r);
   localStorage.setItem('pg_compare', JSON.stringify(compare));
   const sync = (id, v) => {
     const el = document.getElementById(id);
     if (el && el !== document.activeElement) el.value = v || '';
   };
-  selectedLenses.forEach(l => {
+  MASLOW_LEVELS.forEach(l => {
     if (r[l.id]) { sync(`${l.id}-q1`, r[l.id].q1); sync(`${l.id}-q2`, r[l.id].q2); }
   });
   if (r.synthesis) { sync('syn-change', r.synthesis.change); sync('syn-constant', r.synthesis.constant); }
@@ -868,7 +733,7 @@ function applyRemoteCompare(r) {
 }
 
 function restoreAll() {
-  selectedLenses.forEach(l => {
+  MASLOW_LEVELS.forEach(l => {
     if (compare[l.id]) {
       set(`${l.id}-q1`, compare[l.id].q1);
       set(`${l.id}-q2`, compare[l.id].q2);
